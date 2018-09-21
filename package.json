@@ -1,0 +1,8 @@
+{
+    "private": true,
+    "name": "node-esmodule",
+    "devDependencies": {
+        "lerna": "^3.4.0",
+        "typescript": "^3.0.0"
+    }
+}

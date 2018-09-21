@@ -1,0 +1,7 @@
+{
+    version: 1.0,
+    compiler: 'typescript',
+    include: [
+        'source/**/*.ts', '*.ts'
+    ],
+}

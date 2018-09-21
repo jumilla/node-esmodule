@@ -1,0 +1,36 @@
+{
+  "name": "esmodule-example",
+  "version": "0.1.0",
+  "description": "> TODO: description",
+  "author": "Fumio Furukawa <fumio@jumilla.me>",
+  "homepage": "https://github.com/jumilla/node-esmodule#readme",
+  "license": "Apache-2.0",
+  "main": "lib/example-1.mjs",
+  "types": "lib/example-1.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jumilla/node-esmodule.git"
+  },
+  "scripts": {
+    "build": "yarn run esmc src/1",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/jumilla/node-esmodule/issues"
+  },
+  "devDependencies": {
+    "esmodule-builder": "^0.1.0"
+  },
+  "dependencies": {
+    "esmodule-server": "^0.1.0",
+    "example-runner": "^0.2.0"
+  },
+  "gitHead": "2fc52a1da0116d4479444579676d5a79f185403c"
+}
