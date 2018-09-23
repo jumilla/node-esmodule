@@ -2,8 +2,8 @@
     "private": true,
     "name": "example-typescript",
     "dependencies": {
-        "esmodule-example": "^0.1.0",
-        "esmodule-server": "^0.1.0"
+        "esmodule-example": "^0.2.0",
+        "esmodule-server": "^0.2.0"
     },
-    "version": "0.1.0"
+    "version": "0.2.0"
 }

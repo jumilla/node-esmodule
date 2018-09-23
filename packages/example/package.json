@@ -1,6 +1,6 @@
 {
   "name": "esmodule-example",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "> TODO: description",
   "author": "Fumio Furukawa <fumio@jumilla.me>",
   "homepage": "https://github.com/jumilla/node-esmodule#readme",
@@ -26,10 +26,10 @@
     "url": "https://github.com/jumilla/node-esmodule/issues"
   },
   "devDependencies": {
-    "esmodule-builder": "^0.1.0"
+    "esmodule-builder": "^0.2.0"
   },
   "dependencies": {
-    "esmodule-server": "^0.1.0",
+    "esmodule-server": "^0.2.0",
     "example-runner": "^0.2.0"
   },
   "gitHead": "2fc52a1da0116d4479444579676d5a79f185403c"
