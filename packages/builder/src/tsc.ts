@@ -43,6 +43,14 @@ function generate(project : Project) {
   
     let exitCode = emitResult.emitSkipped ? 1 : 0
     console.log(`Process exiting with code '${exitCode}'.`)
+
+    const babel = require('@babel/core')
+    const result = babel.transformFileSync(project.moduleEsmPath, {
+        presets: [[require('@babel/preset-env'), {targets: {'node' : '6.0'}}]],
+        plugins: [],
+    })
+    fs.writeFileSync(project.moduleCjsPath, result.code)
+    // console.log(result)
 }
 
 function emit(project : Project, compilerOptions : ts.CompilerOptions) : ts.EmitResult {
@@ -70,7 +78,7 @@ function emit(project : Project, compilerOptions : ts.CompilerOptions) : ts.Emit
     moduleText += '//# sourceMappingURL=' + project.sourceMapPath + '\n'
 
     fs.writeFileSync(project.typePath, declarationText)
-    fs.writeFileSync(project.modulePath, moduleText)
+    fs.writeFileSync(project.moduleEsmPath, moduleText)
     fs.writeFileSync(project.sourceMapPath, sourceMapText)
 
     emitResult.diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics)
@@ -101,7 +109,7 @@ function transpile(project : Project) {
         moduleText += '\n'
     }
 
-    fs.writeFileSync(project.modulePath, moduleText)
+    fs.writeFileSync(project.moduleEsmPath, moduleText)
 }
 
 function transpileFile(sourcePath : string, compilerOptions : ts.CompilerOptions) : ts.TranspileOutput {

@@ -9,7 +9,8 @@ export declare type Project = {
     config: Config;
     sourcePaths: string[];
     typePath: string;
-    modulePath: string;
+    moduleEsmPath: string;
+    moduleCjsPath: string;
     sourceMapPath: string;
 };
 declare function resolvePath(directoryOfFilePath: string): string;

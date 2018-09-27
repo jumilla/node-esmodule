@@ -36,5 +36,6 @@ var test;
     test.version = '1.0.0';
 })(test || (test = {}));
 export default test;
+export var cc = 345;
 //# sourceMappingURL=export.js.map
 //# sourceMappingURL=lib/example-1.mjs.map

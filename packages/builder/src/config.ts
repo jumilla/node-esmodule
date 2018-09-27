@@ -16,7 +16,8 @@ export type Project = {
     config : Config
     sourcePaths : string[]
     typePath : string
-    modulePath : string
+    moduleEsmPath : string
+    moduleCjsPath : string
     sourceMapPath : string
 }
 
@@ -53,7 +54,8 @@ function load(configFilePath : string, baseDirectoryPath : string = path.dirname
         config,
         sourcePaths : expandFilePatterns(baseDirectoryPath, config.include),
         typePath : 'lib/example-1.d.ts',
-        modulePath : 'lib/example-1.mjs',
+        moduleEsmPath : 'lib/example-1.mjs',
+        moduleCjsPath : 'lib/example-1.js',
         sourceMapPath : 'lib/example-1.mjs.map',
     }
 }

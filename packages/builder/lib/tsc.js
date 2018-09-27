@@ -28,6 +28,13 @@ function generate(project) {
     });
     var exitCode = emitResult.emitSkipped ? 1 : 0;
     console.log("Process exiting with code '" + exitCode + "'.");
+    var babel = require('@babel/core');
+    var result = babel.transformFileSync(project.moduleEsmPath, {
+        presets: [[require('@babel/preset-env'), { targets: { 'node': '6.0' } }]],
+        plugins: [],
+    });
+    fs.writeFileSync(project.moduleCjsPath, result.code);
+    // console.log(result)
 }
 function emit(project, compilerOptions) {
     var program = ts.createProgram(project.sourcePaths, compilerOptions);
@@ -49,7 +56,7 @@ function emit(project, compilerOptions) {
     });
     moduleText += '//# sourceMappingURL=' + project.sourceMapPath + '\n';
     fs.writeFileSync(project.typePath, declarationText);
-    fs.writeFileSync(project.modulePath, moduleText);
+    fs.writeFileSync(project.moduleEsmPath, moduleText);
     fs.writeFileSync(project.sourceMapPath, sourceMapText);
     emitResult.diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
     return emitResult;
@@ -73,7 +80,7 @@ function transpile(project) {
         moduleText += result.outputText;
         moduleText += '\n';
     }
-    fs.writeFileSync(project.modulePath, moduleText);
+    fs.writeFileSync(project.moduleEsmPath, moduleText);
 }
 function transpileFile(sourcePath, compilerOptions) {
     var sourceText = loadFile(sourcePath);
