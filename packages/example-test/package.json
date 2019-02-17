@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@types/node": "^10.10.1",
-    "esmodule-example": "^0.2.2",
+    "esmodule-example": "^0.2.3",
     "esmodule-server": "^0.2.0"
   },
-  "version": "0.2.2"
+  "version": "0.2.3"
 }
