@@ -44,6 +44,7 @@ function generate(project : Project) {
     let exitCode = emitResult.emitSkipped ? 1 : 0
     console.log(`Process exiting with code '${exitCode}'.`)
 
+    /*
     const babel = require('@babel/core')
     const result = babel.transformFileSync(project.moduleEsmPath, {
         presets: [[require('@babel/preset-env'), {targets: {'node' : '6.0'}}]],
@@ -51,6 +52,7 @@ function generate(project : Project) {
     })
     fs.writeFileSync(project.moduleCjsPath, result.code)
     // console.log(result)
+    */
 }
 
 function emit(project : Project, compilerOptions : ts.CompilerOptions) : ts.EmitResult {

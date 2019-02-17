@@ -8,6 +8,7 @@ export type Config = {
     version : string
     compiler? : string        // null or 'typescript' or 'babel'
     include : string[]
+    out : string
 }
 
 export type Project = {
@@ -17,7 +18,7 @@ export type Project = {
     sourcePaths : string[]
     typePath : string
     moduleEsmPath : string
-    moduleCjsPath : string
+    // moduleCjsPath : string
     sourceMapPath : string
 }
 
@@ -53,10 +54,10 @@ function load(configFilePath : string, baseDirectoryPath : string = path.dirname
         configFilePath,
         config,
         sourcePaths : expandFilePatterns(baseDirectoryPath, config.include),
-        typePath : 'lib/example-1.d.ts',
-        moduleEsmPath : 'lib/example-1.mjs',
-        moduleCjsPath : 'lib/example-1.js',
-        sourceMapPath : 'lib/example-1.mjs.map',
+        typePath : config.out + '.d.ts',
+        moduleEsmPath : config.out + '.mjs',
+        // moduleCjsPath : 'lib/example-1.js',
+        sourceMapPath : config.out + '.mjs.map',
     }
 }
 
