@@ -1,6 +1,6 @@
 {
   "name": "esmodule-example",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "ES Modules example",
   "author": "Fumio Furukawa <fumio@jumilla.me>",
   "homepage": "https://github.com/jumilla/node-esmodule#readme",
@@ -26,7 +26,7 @@
     "url": "https://github.com/jumilla/node-esmodule/issues"
   },
   "devDependencies": {
-    "esmodule-builder": "^0.2.0"
+    "esmodule-builder": "^0.2.1"
   },
   "dependencies": {
     "esmodule-server": "^0.2.0"
