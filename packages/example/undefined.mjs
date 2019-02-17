@@ -31,4 +31,10 @@ var test;
     test.z = z;
 })(test || (test = {}));
 //# sourceMappingURL=z.js.map
-//# sourceMappingURL=lib/example-1.mjs.map
+var test;
+(function (test) {
+    test.version = '1.0.0';
+})(test || (test = {}));
+export default test;
+//# sourceMappingURL=export.js.map
+//# sourceMappingURL=undefined.mjs.map

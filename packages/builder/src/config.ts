@@ -9,6 +9,9 @@ export type Config = {
     compiler? : string        // null or 'typescript' or 'babel'
     include : string[]
     out : string
+    typescript? : {
+        compilerOptions? : {}
+    }
 }
 
 export type Project = {

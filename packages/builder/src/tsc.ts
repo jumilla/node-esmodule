@@ -9,7 +9,8 @@ function compile(project : Project) {
 }
 
 function generate(project : Project) {
-    const compilerOptions = {
+    const configOptions = ((project.config.typescript || {compilerOptions : {}}).compilerOptions || {})
+    const compilerOptions = Object.assign({}, configOptions, {
         module: ts.ModuleKind.ES2015,
         target: ts.ScriptTarget.ES2015,
         declaration: true,
@@ -17,7 +18,7 @@ function generate(project : Project) {
         // inlineSourceMap: true,
 
         strict: true,   // noImplicitAny=true, noImplicitThis=true, alwaysStrict=true, strictNullChecks=true
-    }
+    })
 
     let emitResult = emit(project, compilerOptions)
 

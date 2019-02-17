@@ -3,6 +3,9 @@ export declare type Config = {
     compiler?: string;
     include: string[];
     out: string;
+    typescript?: {
+        compilerOptions?: {};
+    };
 };
 export declare type Project = {
     baseDirectoryPath: string;

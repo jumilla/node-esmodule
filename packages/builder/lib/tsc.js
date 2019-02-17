@@ -7,14 +7,15 @@ function compile(project) {
     return generate(project);
 }
 function generate(project) {
-    var compilerOptions = {
+    var configOptions = ((project.config.typescript || { compilerOptions: {} }).compilerOptions || {});
+    var compilerOptions = Object.assign({}, configOptions, {
         module: ts.ModuleKind.ES2015,
         target: ts.ScriptTarget.ES2015,
         declaration: true,
         sourceMap: true,
         // inlineSourceMap: true,
         strict: true,
-    };
+    });
     var emitResult = emit(project, compilerOptions);
     emitResult.diagnostics.forEach(function (diagnostic) {
         if (diagnostic.file) {
