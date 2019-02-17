@@ -2,6 +2,7 @@ export declare type Config = {
     version: string;
     compiler?: string;
     include: string[];
+    out: string;
 };
 export declare type Project = {
     baseDirectoryPath: string;
@@ -10,7 +11,6 @@ export declare type Project = {
     sourcePaths: string[];
     typePath: string;
     moduleEsmPath: string;
-    moduleCjsPath: string;
     sourceMapPath: string;
 };
 declare function resolvePath(directoryOfFilePath: string): string;

@@ -28,13 +28,15 @@ function generate(project) {
     });
     var exitCode = emitResult.emitSkipped ? 1 : 0;
     console.log("Process exiting with code '" + exitCode + "'.");
-    var babel = require('@babel/core');
-    var result = babel.transformFileSync(project.moduleEsmPath, {
-        presets: [[require('@babel/preset-env'), { targets: { 'node': '6.0' } }]],
+    /*
+    const babel = require('@babel/core')
+    const result = babel.transformFileSync(project.moduleEsmPath, {
+        presets: [[require('@babel/preset-env'), {targets: {'node' : '6.0'}}]],
         plugins: [],
-    });
-    fs.writeFileSync(project.moduleCjsPath, result.code);
+    })
+    fs.writeFileSync(project.moduleCjsPath, result.code)
     // console.log(result)
+    */
 }
 function emit(project, compilerOptions) {
     var program = ts.createProgram(project.sourcePaths, compilerOptions);

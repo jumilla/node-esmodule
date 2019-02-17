@@ -31,10 +31,10 @@ function load(configFilePath, baseDirectoryPath) {
         configFilePath: configFilePath,
         config: config,
         sourcePaths: expandFilePatterns(baseDirectoryPath, config.include),
-        typePath: 'lib/example-1.d.ts',
-        moduleEsmPath: 'lib/example-1.mjs',
-        moduleCjsPath: 'lib/example-1.js',
-        sourceMapPath: 'lib/example-1.mjs.map',
+        typePath: config.out + '.d.ts',
+        moduleEsmPath: config.out + '.mjs',
+        // moduleCjsPath : 'lib/example-1.js',
+        sourceMapPath: config.out + '.mjs.map',
     };
 }
 function expandFilePatterns(directoryPath, patterns) {
