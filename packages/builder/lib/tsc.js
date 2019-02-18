@@ -6,6 +6,7 @@ function compile(project) {
     // return transpile(project)
     return generate(project);
 }
+var a;
 function generate(project) {
     var compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
         declaration: true,

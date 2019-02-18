@@ -5,14 +5,14 @@
     "tasks": [
         {
             "group": "build",
-            "label": "builder: ビルド",
+            "label": "@esmodule-builder: ビルド",
             "type": "typescript",
             "tsconfig": "packages/builder/tsconfig.json",
             "problemMatcher": ["$tsc"]
         },
         {
             "group": "build",
-            "label": "example: ビルド",
+            "label": "@esmodule-example: ビルド",
             "type": "npm",
             "script": "build",
             "path": "packages/example/",
@@ -20,9 +20,16 @@
         },
         {
             "group": "build",
-            "label": "リリース: パッチ",
+            "label": "@esmodule-*: リリース: パッチ",
             "type": "shell",
             "command": "lerna publish patch -y",
+            "problemMatcher": []
+        },
+        {
+            "group": "build",
+            "label": "@esmodule-*: リリース: マイナー",
+            "type": "shell",
+            "command": "lerna publish minor",
             "problemMatcher": []
         },
     ]

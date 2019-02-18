@@ -41,7 +41,6 @@ function load(configFilePath, baseDirectoryPath) {
     if (baseDirectoryPath === void 0) { baseDirectoryPath = path.dirname(configFilePath); }
     var text = fs.readFileSync(configFilePath, { encoding: 'UTF-8' });
     var config = parseConfig(json5.parse(text));
-    console.log(config);
     return {
         baseDirectoryPath: baseDirectoryPath,
         configFilePath: configFilePath,

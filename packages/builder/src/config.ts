@@ -75,7 +75,6 @@ function load(configFilePath : string, baseDirectoryPath : string = path.dirname
     const text = fs.readFileSync(configFilePath, {encoding: 'UTF-8'})
 
     const config = parseConfig(json5.parse(text))
-    console.log(config)
 
     return {
         baseDirectoryPath,

@@ -22,7 +22,6 @@
     "url": "git+https://github.com/jumilla/node-esmodule.git"
   },
   "scripts": {
-    "build": "../../node_modules/.bin/tsc",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
