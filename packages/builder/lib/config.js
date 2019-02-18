@@ -17,7 +17,10 @@ var DEFAULT = {
     out: '',
     typescript: {
         compilerOptions: {
-        //            declaration: true,
+            module: 'es2015',
+            target: 'es2015',
+            lib: ['es2015'],
+            moduleResolution: 'node',
         },
     },
     babel: {},

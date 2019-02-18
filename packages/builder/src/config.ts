@@ -47,6 +47,10 @@ const DEFAULT = {
     out : '',
     typescript : {
         compilerOptions : {
+            module: 'es2015',
+            target: 'es2015',
+            lib: ['es2015'],
+            moduleResolution: 'node',
 //            declaration: true,
         },
     },

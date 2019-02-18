@@ -10,13 +10,9 @@ function compile(project : Project) {
 
 function generate(project : Project) {
     const compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
-        module: ts.ModuleKind.ES2015,
-        target: ts.ScriptTarget.ES2015,
-        moduleResolution: ts.ModuleResolutionKind.NodeJs,
         declaration: true,
         sourceMap: true,
         // inlineSourceMap: true,
-
         strict: true,   // noImplicitAny=true, noImplicitThis=true, alwaysStrict=true, strictNullChecks=true
     })
 

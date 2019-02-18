@@ -8,9 +8,6 @@ function compile(project) {
 }
 function generate(project) {
     var compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
-        module: ts.ModuleKind.ES2015,
-        target: ts.ScriptTarget.ES2015,
-        moduleResolution: ts.ModuleResolutionKind.NodeJs,
         declaration: true,
         sourceMap: true,
         // inlineSourceMap: true,
