@@ -1,5 +1,0 @@
-{
-    "compiler" : "typescript",
-    "include" : ["src/1/source/*.ts"],
-    "out" : "lib/example-1"
-}

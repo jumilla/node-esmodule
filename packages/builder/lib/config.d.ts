@@ -1,11 +1,24 @@
+export declare type ConfigSource = {
+    version?: string;
+    compiler?: string;
+    include?: string[];
+    out?: string;
+    typescript?: {};
+    babel?: {};
+};
+export declare enum CompilerKind {
+    TypeScript = "typescript",
+    Babel = "babel"
+}
 export declare type Config = {
     version: string;
-    compiler?: string;
+    compiler: CompilerKind;
     include: string[];
     out: string;
-    typescript?: {
-        compilerOptions?: {};
+    typescript: {
+        compilerOptions: {};
     };
+    babel: {};
 };
 export declare type Project = {
     baseDirectoryPath: string;

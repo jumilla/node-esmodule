@@ -7,16 +7,24 @@ function compile(project) {
     return generate(project);
 }
 function generate(project) {
-    var configOptions = ((project.config.typescript || { compilerOptions: {} }).compilerOptions || {});
-    var compilerOptions = Object.assign({}, configOptions, {
+    var compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
         module: ts.ModuleKind.ES2015,
         target: ts.ScriptTarget.ES2015,
+        moduleResolution: ts.ModuleResolutionKind.NodeJs,
         declaration: true,
         sourceMap: true,
         // inlineSourceMap: true,
         strict: true,
     });
-    var emitResult = emit(project, compilerOptions);
+    var host = {
+        useCaseSensitiveFileNames: false,
+        readDirectory: function (rootDir, extensions, excludes, includes, depth) { return []; },
+        fileExists: function (path) { return false; },
+        readFile: function (path) { return undefined; }
+    };
+    var parsed = ts.parseJsonConfigFileContent({ compilerOptions: compilerOptions }, host, project.baseDirectoryPath);
+    // TODO: Error Handling
+    var emitResult = emit(project, parsed.options);
     emitResult.diagnostics.forEach(function (diagnostic) {
         if (diagnostic.file) {
             var _a = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start), line = _a.line, character = _a.character;

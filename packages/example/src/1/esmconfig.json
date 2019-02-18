@@ -2,6 +2,7 @@
     version: 1.0,
     compiler: 'typescript',
     include: [
-        'source/**/*.ts', '*.ts'
+        'source/**/*', 'export.ts'
     ],
+    out: 'lib/example-1',
 }

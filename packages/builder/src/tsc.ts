@@ -9,10 +9,10 @@ function compile(project : Project) {
 }
 
 function generate(project : Project) {
-    const configOptions = ((project.config.typescript || {compilerOptions : {}}).compilerOptions || {})
-    const compilerOptions = Object.assign({}, configOptions, {
+    const compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
         module: ts.ModuleKind.ES2015,
         target: ts.ScriptTarget.ES2015,
+        moduleResolution: ts.ModuleResolutionKind.NodeJs,
         declaration: true,
         sourceMap: true,
         // inlineSourceMap: true,
@@ -20,7 +20,17 @@ function generate(project : Project) {
         strict: true,   // noImplicitAny=true, noImplicitThis=true, alwaysStrict=true, strictNullChecks=true
     })
 
-    let emitResult = emit(project, compilerOptions)
+    const host : ts.ParseConfigHost = {
+        useCaseSensitiveFileNames: false,
+        readDirectory: (rootDir: string, extensions: ReadonlyArray<string>, excludes: ReadonlyArray<string> | undefined, includes: ReadonlyArray<string>, depth?: number): string[] => [],
+        fileExists: (path: string): boolean => false,
+        readFile: (path: string): string | undefined => undefined
+    }
+    const parsed = ts.parseJsonConfigFileContent({compilerOptions}, host, project.baseDirectoryPath)
+
+    // TODO: Error Handling
+
+    let emitResult = emit(project, parsed.options)
 
     emitResult.diagnostics.forEach(diagnostic => {
         if (diagnostic.file) {

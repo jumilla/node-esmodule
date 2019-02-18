@@ -4,14 +4,27 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as glob from 'glob'
 
+export type ConfigSource = {
+    version? : string
+    compiler? : string          // undefined or 'typescript' or 'babel'
+    include? : string[]
+    out? : string
+    typescript? : {}
+    babel? : {}
+}
+
+export enum CompilerKind {
+    TypeScript = 'typescript',
+    Babel = 'babel',
+}
+
 export type Config = {
     version : string
-    compiler? : string        // null or 'typescript' or 'babel'
+    compiler : CompilerKind
     include : string[]
     out : string
-    typescript? : {
-        compilerOptions? : {}
-    }
+    typescript : { compilerOptions : {} }
+    babel : {}
 }
 
 export type Project = {
@@ -29,9 +42,16 @@ const FILENAME = 'esmconfig.json'
 
 const DEFAULT = {
     version : '0.1',
-    compiler : null,
+    compiler : CompilerKind.TypeScript,
     include : [],
-}
+    out : '',
+    typescript : {
+        compilerOptions : {
+//            declaration: true,
+        },
+    },
+    babel : {},
+} as Config
 
 function resolvePath(directoryOfFilePath : string) : string {
     return directoryOfFilePath + '/' + FILENAME
@@ -50,7 +70,8 @@ function exists(filePath : string) : boolean {
 function load(configFilePath : string, baseDirectoryPath : string = path.dirname(configFilePath)) : Project {
     const text = fs.readFileSync(configFilePath, {encoding: 'UTF-8'})
 
-    const config = Object.assign({}, DEFAULT, json5.parse(text))
+    const config = parseConfig(json5.parse(text))
+    console.log(config)
 
     return {
         baseDirectoryPath,
@@ -64,10 +85,58 @@ function load(configFilePath : string, baseDirectoryPath : string = path.dirname
     }
 }
 
+function parseConfig(data : ConfigSource) : Config {
+    const choiseValue = <T>(defaultValue : T, specifiedValue : any, checker? : (value : any) => T) : T => {
+        const value = specifiedValue || defaultValue
+        return checker ? checker(value) : value
+    }
+
+    const choiseObject = <T extends {}>(defaultValue? : T, specifiedValue? : {}) : T => {
+        return Object.assign({}, defaultValue, specifiedValue)
+    }
+
+    const version = choiseValue(DEFAULT.version, data.version)
+    const compiler = choiseValue(DEFAULT.compiler, data.compiler, (value : string) => {
+        const lowerValue = value.toLowerCase()
+        if (value == 'typescript') return CompilerKind.TypeScript
+        if (value == 'babel') return CompilerKind.Babel
+        return CompilerKind.TypeScript
+    })
+    const include = choiseValue(DEFAULT.include, data.include)
+    const out = choiseValue(undefined, data.out, value => {
+        if (value === undefined) {
+            // TODO Error handling
+            console.log('Parameter "out" must need.')
+            return 'a'
+        }
+        return value
+    })
+    console.log(version, include, out)
+    const typescript = choiseObject(DEFAULT.typescript, data.typescript)
+    const babel = choiseObject(DEFAULT.babel, data.babel)
+
+    return {
+        version,
+        compiler,
+        include,
+        out,
+        typescript,
+        babel,
+    }
+}
+
 function expandFilePatterns(directoryPath : string, patterns : string[]) : string[] {
     const result : string[] = []
 
-    for (const pattern of patterns) {
+    for (let pattern of patterns) {
+        // Add suffix '.ts'
+        if (pattern.endsWith('/')) {
+            pattern = pattern + '*.ts'
+        }
+        else if (pattern.endsWith('*')) {
+            pattern = pattern + '.ts'
+        }
+
         // const matches = glob.sync(fs.realpathSync(directoryPath) + '/' + pattern)
         const matches = glob.sync(directoryPath + '/' + pattern)
 
