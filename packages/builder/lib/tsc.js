@@ -62,8 +62,7 @@ function readModuleSource(project) {
             sourceText += line + '\n';
         }
     }
-    console.log(22, sourceText);
-    fs.writeFileSync('yy.js', sourceText, { encoding: 'UTF-8' });
+    fs.writeFileSync('debug.ts', sourceText, { encoding: 'UTF-8' });
     return {
         sourceText: sourceText,
         sourceMaps: sourceMaps,
