@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@syntaxtree/html@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@syntaxtree/html/-/html-0.1.1.tgz#3f35f153f35cdc4cc89de9e758d8b8374ba3e6a8"
+
 "@types/events@*":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
@@ -73,9 +77,9 @@ escape-string-regexp@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
 
-esmodule-builder@^0.2.5:
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/esmodule-builder/-/esmodule-builder-0.2.5.tgz#e757eb8adc0f5c972806ce79c85ed4a6fcb0a780"
+esmodule-builder@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/esmodule-builder/-/esmodule-builder-0.3.1.tgz#f87e9242cbecdece226e243f6107949e7ce9320d"
   dependencies:
     "@types/glob" "^7.1.0"
     "@types/json5" "^0.0.30"
@@ -84,9 +88,9 @@ esmodule-builder@^0.2.5:
     glob "^7.1.3"
     json5 "^2.0.1"
 
-esmodule-server@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/esmodule-server/-/esmodule-server-0.2.0.tgz#20c8c628123e82305fa9d0efda08ad0e810f38ab"
+esmodule-server@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/esmodule-server/-/esmodule-server-0.3.0.tgz#daf59645f6fa4bac2153475f3c7561a74e822448"
   dependencies:
     "@types/glob" "^7.1.0"
     "@types/json5" "^0.0.30"

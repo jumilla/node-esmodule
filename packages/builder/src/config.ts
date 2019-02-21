@@ -7,7 +7,9 @@ import * as glob from 'glob'
 export type ConfigSource = {
     version? : string
     compiler? : string          // undefined or 'typescript' or 'babel'
-    include? : string[]
+    source? : string
+    include? : string | string[]
+    exclude? : string | string[]
     out? : string
     typescript? : {}
     babel? : {}
@@ -21,7 +23,9 @@ export enum CompilerKind {
 export type Config = {
     version : string
     compiler : CompilerKind
+    source : string
     include : string[]
+    exclude : string[]
     out : string
     typescript : { compilerOptions : {} }
     babel : {}
@@ -31,7 +35,8 @@ export type Project = {
     baseDirectoryPath : string
     configFilePath? : string
     config : Config
-    sourcePaths : string[]
+    definitionPath : string
+    codePaths : string[]
     typePath : string
     moduleEsmPath : string
     // moduleCjsPath : string
@@ -43,17 +48,11 @@ const FILENAME = 'esmconfig.json'
 const DEFAULT = {
     version : '0.1',
     compiler : CompilerKind.TypeScript,
-    include : [],
+    source : '',
+    include : ['*'],
+    exclude : [],
     out : '',
-    typescript : {
-        compilerOptions : {
-            module: 'es2015',
-            target: 'es2015',
-            lib: ['es2015'],
-            moduleResolution: 'node',
-//            declaration: true,
-        },
-    },
+    typescript : {compilerOptions: {}},
     babel : {},
 } as Config
 
@@ -80,7 +79,8 @@ function load(configFilePath : string, baseDirectoryPath : string = path.dirname
         baseDirectoryPath,
         configFilePath,
         config,
-        sourcePaths : expandFilePatterns(baseDirectoryPath, config.include),
+        definitionPath: baseDirectoryPath + '/' + config.source,
+        codePaths : expandFilePatterns(baseDirectoryPath, config),
         typePath : config.out + '.d.ts',
         moduleEsmPath : config.out + '.mjs',
         // moduleCjsPath : 'lib/example-1.js',
@@ -105,7 +105,9 @@ function parseConfig(data : ConfigSource) : Config {
         if (value == 'babel') return CompilerKind.Babel
         return CompilerKind.TypeScript
     })
-    const include = choiseValue(DEFAULT.include, data.include)
+    const source = choiseValue(DEFAULT.source, data.source)
+    const include = choiseValue(DEFAULT.include, typeof data.include === 'string' ? [data.include] : data.include)
+    const exclude = choiseValue(DEFAULT.exclude, typeof data.exclude === 'string' ? [data.exclude] : data.exclude)
     const out = choiseValue(undefined, data.out, value => {
         if (value === undefined) {
             // TODO Error handling
@@ -114,24 +116,34 @@ function parseConfig(data : ConfigSource) : Config {
         }
         return value
     })
-    console.log(version, include, out)
+    console.log(version, source, out)
     const typescript = choiseObject(DEFAULT.typescript, data.typescript)
     const babel = choiseObject(DEFAULT.babel, data.babel)
 
     return {
         version,
         compiler,
+        source,
         include,
+        exclude,
         out,
         typescript,
         babel,
     }
 }
 
-function expandFilePatterns(directoryPath : string, patterns : string[]) : string[] {
+function expandFilePatterns(directoryPath : string, config : Config) : string[] {
     const result : string[] = []
 
-    for (let pattern of patterns) {
+    const excludePaths : string[] = []
+
+    for (let pattern of config.exclude) {
+        const matches = glob.sync(directoryPath + '/' + pattern)
+
+        excludePaths.push(...matches)
+    }
+
+    for (let pattern of config.include) {
         // Add suffix '.ts'
         if (pattern.endsWith('/')) {
             pattern = pattern + '*.ts'
@@ -144,6 +156,10 @@ function expandFilePatterns(directoryPath : string, patterns : string[]) : strin
         const matches = glob.sync(directoryPath + '/' + pattern)
 
         for (const match of matches) {
+            if (match == directoryPath + '/' + config.source) continue
+
+            if (excludePaths.indexOf(match) != -1) continue
+
             result.push(path.normalize(match))
         }
     }

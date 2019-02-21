@@ -1,4 +1,6 @@
 
+var abc = 10
+
 namespace test {
     export function a() {
         return 99
@@ -11,3 +13,4 @@ namespace test {
         return a() + b() * 2
     }
 }
+

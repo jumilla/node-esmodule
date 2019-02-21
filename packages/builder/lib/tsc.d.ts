@@ -1,8 +1,8 @@
 import { Project } from './config';
+import * as ts from 'typescript';
 declare function compile(project: Project): void;
-declare function transpile(project: Project): void;
+export declare function getNewLineCharacter(options: ts.CompilerOptions | ts.PrinterOptions): string;
 declare const _default: {
     compile: typeof compile;
-    transpile: typeof transpile;
 };
 export default _default;

@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "es2015",
+        "module": "none",
+        "outFile": "../../lib/example-1.mjs"
+    },
+    "include": [
+        "*.ts",
+    ],
+    "exclude" : [
+        "@module.ts",
+    ]
+}

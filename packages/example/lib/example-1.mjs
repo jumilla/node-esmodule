@@ -1,5 +1,11 @@
-"use strict";
+import * as json5 from 'json5';
 var test;
+(function (test) {
+    test.version = '1.0.0';
+    const bbb = json5;
+})(test || (test = {}));
+///<source path="src/1/a.ts">
+var abc = 10;
 (function (test) {
     function a() {
         return 99;
@@ -12,29 +18,22 @@ var test;
     }
     test.ee = ee;
 })(test || (test = {}));
-//# sourceMappingURL=a.js.map
-"use strict";
-var test;
+///</source>
+///<source path="src/1/b.ts">
 (function (test) {
     function b() {
-        return 55;
+        return 55 + abc;
     }
     test.b = b;
 })(test || (test = {}));
-//# sourceMappingURL=b.js.map
-"use strict";
-var test;
+///</source>
+///<source path="src/1/z.ts">
 (function (test) {
     function z() {
         return 246;
     }
     test.z = z;
 })(test || (test = {}));
-//# sourceMappingURL=z.js.map
-var test;
-(function (test) {
-    test.version = '1.0.0';
-})(test || (test = {}));
+///</source>
 export default test;
-//# sourceMappingURL=export.js.map
-//# sourceMappingURL=lib/example-1.mjs.map
+export { test };

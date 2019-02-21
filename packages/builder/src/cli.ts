@@ -22,7 +22,7 @@ console.log("...config loaded")
 const project = config.load(config.resolvePath(directoryPath))
 console.log(chalk.yellow('Path: '), config.resolvePath(directoryPath))
 console.log(chalk.yellow('Version: '), project.config.version)
-console.log(chalk.yellow('Files: '), project.sourcePaths)
+console.log(chalk.yellow('Files: '), project.codePaths)
 
 
 

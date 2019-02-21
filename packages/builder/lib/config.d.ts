@@ -1,7 +1,9 @@
 export declare type ConfigSource = {
     version?: string;
     compiler?: string;
-    include?: string[];
+    source?: string;
+    include?: string | string[];
+    exclude?: string | string[];
     out?: string;
     typescript?: {};
     babel?: {};
@@ -13,7 +15,9 @@ export declare enum CompilerKind {
 export declare type Config = {
     version: string;
     compiler: CompilerKind;
+    source: string;
     include: string[];
+    exclude: string[];
     out: string;
     typescript: {
         compilerOptions: {};
@@ -24,7 +28,8 @@ export declare type Project = {
     baseDirectoryPath: string;
     configFilePath?: string;
     config: Config;
-    sourcePaths: string[];
+    definitionPath: string;
+    codePaths: string[];
     typePath: string;
     moduleEsmPath: string;
     sourceMapPath: string;
@@ -32,7 +37,7 @@ export declare type Project = {
 declare function resolvePath(directoryOfFilePath: string): string;
 declare function exists(filePath: string): boolean;
 declare function load(configFilePath: string, baseDirectoryPath?: string): Project;
-declare function expandFilePatterns(directoryPath: string, patterns: string[]): string[];
+declare function expandFilePatterns(directoryPath: string, config: Config): string[];
 declare const _default: {
     FILENAME: string;
     resolvePath: typeof resolvePath;

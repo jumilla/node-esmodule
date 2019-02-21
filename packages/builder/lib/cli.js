@@ -18,7 +18,7 @@ console.log("...config loaded");
 var project = config_1.default.load(config_1.default.resolvePath(directoryPath));
 console.log(chalk_1.default.yellow('Path: '), config_1.default.resolvePath(directoryPath));
 console.log(chalk_1.default.yellow('Version: '), project.config.version);
-console.log(chalk_1.default.yellow('Files: '), project.sourcePaths);
+console.log(chalk_1.default.yellow('Files: '), project.codePaths);
 switch (project.config.compiler) {
     case 'typescript':
         tsc_1.default.compile(project);

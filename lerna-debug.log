@@ -1,0 +1,9 @@
+0 silly argv { _: [ 'link' ],
+0 silly argv   lernaVersion: '3.4.0',
+0 silly argv   '$0': 'node_modules/.bin/lerna' }
+1 notice cli v3.4.0
+2 verbose rootPath /Users/fumio/Repositories/Jumilla/node-esmodule
+3 info Symlinking packages and binaries
+4 error TypeError: tracker.addWork is not a function
+4 error     at symlinkDependencies (/Users/fumio/Repositories/Jumilla/node-esmodule/node_modules/@lerna/symlink-dependencies/symlink-dependencies.js:25:11)
+4 error     at LinkCommand.execute (/Users/fumio/Repositories/Jumilla/node-esmodule/node_modules/@lerna/link/index.js:33:12)
