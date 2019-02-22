@@ -17,7 +17,9 @@ var DEFAULT = {
     include: ['*'],
     exclude: [],
     out: { source: '@module.ts', module: 'module.js' },
-    typescript: { compilerOptions: {} },
+    typescript: { compilerOptions: {
+            locale: process.env.LANG,
+        } },
     babel: {},
 };
 function resolvePath(baseDirectoryPath, filename) {

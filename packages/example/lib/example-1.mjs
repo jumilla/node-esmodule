@@ -4,7 +4,7 @@ var test;
     test.version = '1.0.0';
     const bbb = json5;
 })(test || (test = {}));
-///<source path="src/1/a.ts">
+/// <source path="src/1/a.ts">
 var abc = 10;
 (function (test) {
     function a() {
@@ -18,22 +18,22 @@ var abc = 10;
     }
     test.ee = ee;
 })(test || (test = {}));
-///</source>
-///<source path="src/1/b.ts">
+/// </source>
+/// <source path="src/1/b.ts">
 (function (test) {
     function b() {
         return 55 + abc;
     }
     test.b = b;
 })(test || (test = {}));
-///</source>
-///<source path="src/1/z.ts">
+/// </source>
+/// <source path="src/1/z.ts">
 (function (test) {
     function z() {
         return 246;
     }
     test.z = z;
 })(test || (test = {}));
-///</source>
+/// </source>
 export default test;
 export { test };

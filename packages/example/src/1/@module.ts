@@ -6,7 +6,7 @@ namespace test {
     const bbb = json5
 }
 
-///<source path="src/1/a.ts">
+/// <source path="src/1/a.ts">
 
 var abc = 10
 
@@ -24,8 +24,9 @@ namespace test {
 }
 
 
-///</source>
-///<source path="src/1/b.ts">
+/// </source>
+
+/// <source path="src/1/b.ts">
 
 namespace test {
     export function b() {
@@ -33,8 +34,9 @@ namespace test {
     }
 }
 
-///</source>
-///<source path="src/1/z.ts">
+/// </source>
+
+/// <source path="src/1/z.ts">
 
 namespace test {
     export function z() {
@@ -42,7 +44,8 @@ namespace test {
     }
 }
 
-///</source>
+/// </source>
+
 
 export default test
 export {test}

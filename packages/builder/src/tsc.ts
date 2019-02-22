@@ -81,10 +81,10 @@ function readModuleSource(project : Project) : ModuleSource {
         const match = line.match(/^\s*\/\/\/\s*<\s*source\s*\/>/)
         if (match) {
             for (const path of project.codePaths) {
-                sourceText += `///<source path="${path}">` + '\n'
+                sourceText += `/// <source path="${path}">` + '\n'
                 const text1 = fs.readFileSync(path, {encoding: 'UTF-8'})
                 sourceText += text1 + '\n'
-                sourceText += '///</source>' + '\n'
+                sourceText += '/// </source>' + '\n\n'
             }
         }
         else {

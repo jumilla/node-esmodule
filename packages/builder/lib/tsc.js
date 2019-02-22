@@ -52,10 +52,10 @@ function readModuleSource(project) {
         if (match) {
             for (var _b = 0, _c = project.codePaths; _b < _c.length; _b++) {
                 var path = _c[_b];
-                sourceText += "///<source path=\"" + path + "\">" + '\n';
+                sourceText += "/// <source path=\"" + path + "\">" + '\n';
                 var text1 = fs.readFileSync(path, { encoding: 'UTF-8' });
                 sourceText += text1 + '\n';
-                sourceText += '///</source>' + '\n';
+                sourceText += '/// </source>' + '\n\n';
             }
         }
         else {
