@@ -71,7 +71,7 @@ function readModuleSource(project) {
     };
 }
 function generateModule(project) {
-    var sourcePath = project.definitionPath;
+    var sourcePath = project.moduleSourcePath || project.definitionPath;
     var compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
         target: 'es2015',
         module: 'es2015',
@@ -89,7 +89,7 @@ function generateModule(project) {
     var moduleText = '';
     var sourceMapText = '';
     var source = readModuleSource(project);
-    var sourceFile = ts.createSourceFile(project.moduleSourcePath || sourcePath, source.sourceText, parsed.options.target);
+    var sourceFile = ts.createSourceFile(sourcePath, source.sourceText, parsed.options.target);
     var compilerHost = ts.createCompilerHost(parsed.options);
     var getSourceFileBase = compilerHost.getSourceFile;
     compilerHost.getSourceFile = function (fileName, languageVersion, onError, shouldCreateNewSourceFile) { return fileName === sourcePath ? sourceFile : getSourceFileBase(fileName, languageVersion, onError, shouldCreateNewSourceFile); },

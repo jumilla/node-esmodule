@@ -6,7 +6,7 @@ var chalk_1 = require("chalk");
 var tsc_1 = require("./tsc");
 console.log(chalk_1.default.green('ES Module builder'));
 console.log(chalk_1.default.yellow('Version: ') + meta_1.default.version);
-var directoryPath = process.cwd();
+var directoryPath = '.';
 if (process.argv.length >= 3) {
     directoryPath = process.argv[2];
 }

@@ -7,7 +7,7 @@ import tsc from './tsc'
 console.log(chalk.green('ES Module builder'))
 console.log(chalk.yellow('Version: ') + meta.version)
 
-let directoryPath = process.cwd()
+let directoryPath = '.'
 
 if (process.argv.length >= 3) {
     directoryPath = process.argv[2]

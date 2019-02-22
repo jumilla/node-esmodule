@@ -103,7 +103,7 @@ function readModuleSource(project : Project) : ModuleSource {
 }
 
 function generateModule(project : Project) : ts.EmitResult {
-    const sourcePath = project.definitionPath
+    const sourcePath = project.moduleSourcePath || project.definitionPath
     const compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
         target: 'es2015',
         module: 'es2015',
@@ -125,7 +125,7 @@ function generateModule(project : Project) : ts.EmitResult {
     let sourceMapText = ''
 
     const source = readModuleSource(project)
-    const sourceFile : ts.SourceFile = ts.createSourceFile(project.moduleSourcePath || sourcePath, source.sourceText, parsed.options.target!)
+    const sourceFile : ts.SourceFile = ts.createSourceFile(sourcePath, source.sourceText, parsed.options.target!)
 
     const compilerHost = ts.createCompilerHost(parsed.options)
     const getSourceFileBase = compilerHost.getSourceFile
