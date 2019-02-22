@@ -54,7 +54,7 @@ const DEFAULT = {
     exclude : [],
     out : { source : '@module.ts', module : 'module.js' },
     typescript : { compilerOptions: {
-        locale: process.env.LANG,
+        locale: process.env.LANG!.substring(0, 2),
     } },
     babel : {},
 } as Config

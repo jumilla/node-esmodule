@@ -19,7 +19,7 @@ namespace test {
 
 namespace test {
     export function ee() {
-        return a() + b() * 2
+        return a() + b() * 2 + keyof()
     }
 }
 

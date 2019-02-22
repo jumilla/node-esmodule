@@ -85,6 +85,9 @@ function generateModule(project) {
         displayDiagnostics(parsed.errors);
         // return
     }
+    if (parsed.options.locale) {
+        ts.validateLocaleAndSetLanguage(parsed.options.locale, ts.sys, parsed.errors);
+    }
     var declarationText = '';
     var moduleText = '';
     var sourceMapText = '';

@@ -16,6 +16,7 @@ if (!config_1.default.exists(config_1.default.resolvePath(directoryPath, config_
 }
 var project = config_1.default.load(config_1.default.resolvePath(directoryPath, config_1.default.FILENAME));
 console.log("...config loaded");
+console.log(project.config);
 console.log(chalk_1.default.yellow('Path: '), config_1.default.resolvePath(directoryPath, config_1.default.FILENAME));
 console.log(chalk_1.default.yellow('Version: '), project.config.version);
 console.log(chalk_1.default.yellow('Files: '), project.codePaths);

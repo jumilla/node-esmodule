@@ -120,6 +120,10 @@ function generateModule(project : Project) : ts.EmitResult {
         // return
     }
 
+    if (parsed.options.locale) {
+        ts.validateLocaleAndSetLanguage(parsed.options.locale, ts.sys, parsed.errors)
+    }
+
     let declarationText = ''
     let moduleText = ''
     let sourceMapText = ''
