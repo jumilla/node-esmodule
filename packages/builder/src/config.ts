@@ -10,7 +10,7 @@ export type ConfigSource = {
     source? : string
     include? : string | string[]
     exclude? : string | string[]
-    out? : string
+    out? : string | { source : string, module : string }
     typescript? : {}
     babel? : {}
 }
@@ -26,7 +26,7 @@ export type Config = {
     source : string
     include : string[]
     exclude : string[]
-    out : string
+    out : { source : string, module : string }
     typescript : { compilerOptions : {} }
     babel : {}
 }
@@ -37,9 +37,10 @@ export type Project = {
     config : Config
     definitionPath : string
     codePaths : string[]
+    moduleSourcePath? : string
     typePath : string
     moduleEsmPath : string
-    // moduleCjsPath : string
+    moduleCjsPath? : string
     sourceMapPath : string
 }
 
@@ -48,16 +49,16 @@ const FILENAME = 'esmconfig.json'
 const DEFAULT = {
     version : '0.1',
     compiler : CompilerKind.TypeScript,
-    source : '',
+    source : 'module.ts',
     include : ['*'],
     exclude : [],
-    out : '',
-    typescript : {compilerOptions: {}},
+    out : { source : '@module.ts', module : 'module.js' },
+    typescript : { compilerOptions: {} },
     babel : {},
 } as Config
 
-function resolvePath(directoryOfFilePath : string) : string {
-    return directoryOfFilePath + '/' + FILENAME
+function resolvePath(baseDirectoryPath : string, filename : string) : string {
+    return path.normalize(path.join(baseDirectoryPath, filename))
 }
 
 function exists(filePath : string) : boolean {
@@ -81,10 +82,11 @@ function load(configFilePath : string, baseDirectoryPath : string = path.dirname
         config,
         definitionPath: baseDirectoryPath + '/' + config.source,
         codePaths : expandFilePatterns(baseDirectoryPath, config),
-        typePath : config.out + '.d.ts',
-        moduleEsmPath : config.out + '.mjs',
+        moduleSourcePath : resolvePath(baseDirectoryPath, config.out.source),
+        typePath : resolvePath(baseDirectoryPath, config.out.module + '.d.ts'),
+        moduleEsmPath : resolvePath(baseDirectoryPath, config.out.module + '.mjs'),
         // moduleCjsPath : 'lib/example-1.js',
-        sourceMapPath : config.out + '.mjs.map',
+        sourceMapPath : resolvePath(baseDirectoryPath, config.out.module + '.mjs.map'),
     }
 }
 
@@ -108,13 +110,23 @@ function parseConfig(data : ConfigSource) : Config {
     const source = choiseValue(DEFAULT.source, data.source)
     const include = choiseValue(DEFAULT.include, typeof data.include === 'string' ? [data.include] : data.include)
     const exclude = choiseValue(DEFAULT.exclude, typeof data.exclude === 'string' ? [data.exclude] : data.exclude)
-    const out = choiseValue(undefined, data.out, value => {
-        if (value === undefined) {
+    const out = choiseValue(DEFAULT.out, data.out, value => {
+        if (typeof value === 'string') {
+            return { source, module: value }
+        }
+        else if (typeof value === 'object') {
+            return value as { source : string, module : string }
+        }
+        else if (typeof value === 'undefined') {
             // TODO Error handling
             console.log('Parameter "out" must need.')
-            return 'a'
+            return { source : '', module: '' }
         }
-        return value
+        else {
+            // TODO Error handling
+            console.log('Parameter "out" must need.')
+            return { source : '', module: '' }
+        }
     })
     console.log(version, source, out)
     const typescript = choiseObject(DEFAULT.typescript, data.typescript)
@@ -153,11 +165,16 @@ function expandFilePatterns(directoryPath : string, config : Config) : string[] 
         }
 
         // const matches = glob.sync(fs.realpathSync(directoryPath) + '/' + pattern)
-        const matches = glob.sync(directoryPath + '/' + pattern)
+        const matches = glob.sync(resolvePath(directoryPath, pattern))
 
         for (const match of matches) {
-            if (match == directoryPath + '/' + config.source) continue
+            // exclude ${source} file
+            if (match == resolvePath(directoryPath, config.source)) continue
 
+            // exclude ${out.source} file
+            if (match == resolvePath(directoryPath, config.out.source)) continue
+
+            // exclude ${exclude} pattern
             if (excludePaths.indexOf(match) != -1) continue
 
             result.push(path.normalize(match))

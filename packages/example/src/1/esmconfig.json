@@ -1,10 +1,13 @@
 {
     version: 1.0,
     compiler: 'typescript',
-    source: '@module.ts',
+    source: 'module.ts',
     include: [
         '*'
     ],
     exclude: [],
-    out: 'lib/example-1',
+    out: {
+        source : '@module.ts',
+        module : '../../lib/example-1',
+    },
 }

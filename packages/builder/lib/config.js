@@ -13,15 +13,15 @@ var FILENAME = 'esmconfig.json';
 var DEFAULT = {
     version: '0.1',
     compiler: CompilerKind.TypeScript,
-    source: '',
+    source: 'module.ts',
     include: ['*'],
     exclude: [],
-    out: '',
+    out: { source: '@module.ts', module: 'module.js' },
     typescript: { compilerOptions: {} },
     babel: {},
 };
-function resolvePath(directoryOfFilePath) {
-    return directoryOfFilePath + '/' + FILENAME;
+function resolvePath(baseDirectoryPath, filename) {
+    return path.normalize(path.join(baseDirectoryPath, filename));
 }
 function exists(filePath) {
     try {
@@ -42,10 +42,11 @@ function load(configFilePath, baseDirectoryPath) {
         config: config,
         definitionPath: baseDirectoryPath + '/' + config.source,
         codePaths: expandFilePatterns(baseDirectoryPath, config),
-        typePath: config.out + '.d.ts',
-        moduleEsmPath: config.out + '.mjs',
+        moduleSourcePath: resolvePath(baseDirectoryPath, config.out.source),
+        typePath: resolvePath(baseDirectoryPath, config.out.module + '.d.ts'),
+        moduleEsmPath: resolvePath(baseDirectoryPath, config.out.module + '.mjs'),
         // moduleCjsPath : 'lib/example-1.js',
-        sourceMapPath: config.out + '.mjs.map',
+        sourceMapPath: resolvePath(baseDirectoryPath, config.out.module + '.mjs.map'),
     };
 }
 function parseConfig(data) {
@@ -68,13 +69,23 @@ function parseConfig(data) {
     var source = choiseValue(DEFAULT.source, data.source);
     var include = choiseValue(DEFAULT.include, typeof data.include === 'string' ? [data.include] : data.include);
     var exclude = choiseValue(DEFAULT.exclude, typeof data.exclude === 'string' ? [data.exclude] : data.exclude);
-    var out = choiseValue(undefined, data.out, function (value) {
-        if (value === undefined) {
+    var out = choiseValue(DEFAULT.out, data.out, function (value) {
+        if (typeof value === 'string') {
+            return { source: source, module: value };
+        }
+        else if (typeof value === 'object') {
+            return value;
+        }
+        else if (typeof value === 'undefined') {
             // TODO Error handling
             console.log('Parameter "out" must need.');
-            return 'a';
+            return { source: '', module: '' };
         }
-        return value;
+        else {
+            // TODO Error handling
+            console.log('Parameter "out" must need.');
+            return { source: '', module: '' };
+        }
     });
     console.log(version, source, out);
     var typescript = choiseObject(DEFAULT.typescript, data.typescript);
@@ -108,11 +119,16 @@ function expandFilePatterns(directoryPath, config) {
             pattern = pattern + '.ts';
         }
         // const matches = glob.sync(fs.realpathSync(directoryPath) + '/' + pattern)
-        var matches = glob.sync(directoryPath + '/' + pattern);
+        var matches = glob.sync(resolvePath(directoryPath, pattern));
         for (var _d = 0, matches_1 = matches; _d < matches_1.length; _d++) {
             var match = matches_1[_d];
-            if (match == directoryPath + '/' + config.source)
+            // exclude ${source} file
+            if (match == resolvePath(directoryPath, config.source))
                 continue;
+            // exclude ${out.source} file
+            if (match == resolvePath(directoryPath, config.out.source))
+                continue;
+            // exclude ${exclude} pattern
             if (excludePaths.indexOf(match) != -1)
                 continue;
             result.push(path.normalize(match));
