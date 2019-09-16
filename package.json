@@ -2,10 +2,10 @@
     "private": true,
     "name": "node-esmodule",
     "devDependencies": {
-        "lerna": "^3.4.0",
-        "typescript": "^3.0.0"
+        "lerna": "^3.16.0",
+        "typescript": "^3.6.0"
     },
-    "dependencies": {
-        "@types/lodash": "^4.14.121"
+    "scripts": {
+        "build": "./node_modules/.bin/tsc -p packages/builder/"
     }
 }

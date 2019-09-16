@@ -73,8 +73,8 @@ function readModuleSource(project) {
 function generateModule(project) {
     var sourcePath = project.moduleSourcePath || project.definitionPath;
     var compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
-        target: 'es2015',
-        module: 'es2015',
+        target: 'esnext',
+        module: 'esnext',
         moduleResolution: 'node',
         declaration: true,
         strict: true,
@@ -122,8 +122,8 @@ function transpileCode(project) {
     var sources = project.codePaths;
     var sourceMap = true;
     var compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
-        target: 'es2015',
-        module: 'es2015',
+        target: 'esnext',
+        module: 'esnext',
         moduleResolution: 'classic',
         declaration: false,
         // sourceMap: sourceMap,
