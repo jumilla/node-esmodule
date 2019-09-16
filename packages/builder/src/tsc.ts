@@ -167,8 +167,8 @@ function transpileCode(project : Project) : TranspileResult {
     const sources = project.codePaths
     const sourceMap = true
     const compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
-        target: 'es2015',
-        module: 'es2015',
+        target: 'esnext',
+        module: 'esnext',
         moduleResolution: 'classic',
         declaration: false,
         // sourceMap: sourceMap,
