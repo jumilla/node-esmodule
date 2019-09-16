@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@types/node": "^10.10.1",
-    "esmodule-example": "^0.6.3",
-    "esmodule-server": "^0.6.0"
+    "esmodule-example": "^0.7.0",
+    "esmodule-server": "^0.7.0"
   },
-  "version": "0.6.3"
+  "version": "0.7.0"
 }
