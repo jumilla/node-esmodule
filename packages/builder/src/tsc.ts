@@ -105,8 +105,8 @@ function readModuleSource(project : Project) : ModuleSource {
 function generateModule(project : Project) : ts.EmitResult {
     const sourcePath = project.moduleSourcePath || project.definitionPath
     const compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
-        target: 'es2015',
-        module: 'es2015',
+        target: 'esnext',
+        module: 'esnext',
         moduleResolution: 'node',
         declaration: true,
         strict: true,
