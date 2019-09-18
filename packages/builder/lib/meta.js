@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var fs = require("fs");
+var packageInfo = JSON.parse(fs.readFileSync(__dirname + '/../package.json', { encoding: 'UTF-8' }));
 exports.default = {
-    version: "0.0",
+    version: packageInfo.version,
     program: 'esmodule-builder',
 };

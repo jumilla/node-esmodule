@@ -1,10 +1,9 @@
 
-type Version = {
-    version: string,
-    program: string,
-}
+import * as fs from 'fs'
+
+const packageInfo = JSON.parse(fs.readFileSync(__dirname + '/../package.json', {encoding: 'UTF-8'}))
 
 export default {
-    version: "0.0",
+    version: packageInfo.version,
     program: 'esmodule-builder',
 }

@@ -1,5 +1,5 @@
 declare const _default: {
-    version: string;
+    version: any;
     program: string;
 };
 export default _default;
