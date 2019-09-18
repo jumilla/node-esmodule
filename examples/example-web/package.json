@@ -2,8 +2,8 @@
     "private": true,
     "name": "example-web",
     "dependencies": {
-        "esmodule-example": "^0.7.2",
+        "esmodule-example": "^0.7.3",
         "esmodule-server": "^0.7.0"
     },
-    "version": "0.7.2"
+    "version": "0.7.3"
 }

@@ -1,6 +1,6 @@
 {
   "name": "esmodule-builder",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "ECMAScript-Module (ES Module) builder.",
   "author": "Jumilla <fumio@jumilla.me>",
   "homepage": "https://github.com/jumilla/node-esmodule#readme",
@@ -33,6 +33,5 @@
     "json5": "^2.1.0",
     "npmlog": "^4.1.2"
   },
-  "gitHead": "2fc52a1da0116d4479444579676d5a79f185403c",
-  "devDependencies": {}
+  "gitHead": "2fc52a1da0116d4479444579676d5a79f185403c"
 }
