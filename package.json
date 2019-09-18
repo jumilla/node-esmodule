@@ -6,6 +6,6 @@
         "typescript": "^3.6.0"
     },
     "scripts": {
-        "build": "./node_modules/.bin/tsc -p packages/builder/"
+        "build": "yarn run tsc -p packages/builder/"
     }
 }

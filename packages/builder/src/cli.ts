@@ -2,10 +2,10 @@
 import meta from './meta'
 import config from './config'
 import chalk from 'chalk'
+import * as log from 'npmlog'
 import tsc from './tsc'
 
-console.log(chalk.green('ES Module builder'))
-console.log(chalk.yellow('Version: ') + meta.version)
+// log.level = 'silly'
 
 let directoryPath = '.'
 
@@ -14,16 +14,19 @@ if (process.argv.length >= 3) {
 }
 
 if (!config.exists(config.resolvePath(directoryPath, config.FILENAME))) {
-    console.log(chalk.red('Error: No config'))
+    log.error(meta.program, chalk.red('No config'))
     process.exit()
 }
 
+log.info(meta.program, chalk.green('ES Module builder'))
+log.info(meta.program, chalk.yellow('Version: ') + meta.version)
+
 const project = config.load(config.resolvePath(directoryPath, config.FILENAME))
-console.log("...config loaded")
-console.log(project.config)
-console.log(chalk.yellow('Path: '), config.resolvePath(directoryPath, config.FILENAME))
-console.log(chalk.yellow('Version: '), project.config.version)
-console.log(chalk.yellow('Files: '), project.codePaths)
+log.verbose(meta.program, "...config loaded")
+log.silly(meta.program, project.config.toString())
+log.verbose(meta.program, chalk.yellow('Path: '), config.resolvePath(directoryPath, config.FILENAME))
+log.verbose(meta.program, chalk.yellow('Version: '), project.config.version)
+log.verbose(meta.program, chalk.yellow('Files: '), project.codePaths)
 
 
 
@@ -33,5 +36,5 @@ switch (project.config.compiler) {
         break
 
     default:
-        console.error('Invalid compiler specified.')
+        log.error(meta.program, 'Invalid compiler specified.')
 }

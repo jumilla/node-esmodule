@@ -89,7 +89,6 @@ function parseConfig(data) {
             return { source: '', module: '' };
         }
     });
-    console.log(version, source, out);
     var typescript = choiseObject(DEFAULT.typescript, data.typescript);
     var babel = choiseObject(DEFAULT.babel, data.babel);
     return {

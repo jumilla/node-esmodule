@@ -1,8 +1,8 @@
-import * as json5 from 'json5';
+// import * as json5 from 'json5'
 var test;
 (function (test) {
     test.version = '1.0.0';
-    const bbb = json5;
+    // const bbb = json5
 })(test || (test = {}));
 /// <source path="src/1/a.ts">
 var abc = 10;
@@ -14,7 +14,7 @@ var abc = 10;
 })(test || (test = {}));
 (function (test) {
     function ee() {
-        return test.a() + test.b() * 2;
+        return test.a() + test.b() * 2; //+ keyof()
     }
     test.ee = ee;
 })(test || (test = {}));

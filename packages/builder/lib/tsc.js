@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var meta_1 = require("./meta");
 var ts = require("typescript");
 var fs = require("fs");
+var log = require("npmlog");
 function compile(project) {
     // return transpile(project)
     return generate(project);
@@ -9,8 +11,12 @@ function compile(project) {
 function generate(project) {
     var emitResult = generateModule(project);
     displayDiagnostics(emitResult.diagnostics);
+    log.silly('typescript', emitResult.toString());
+    if (!emitResult.emitSkipped) {
+        log.info(meta_1.default.program, "'" + project.moduleEsmPath + "' generated.");
+    }
     var exitCode = emitResult.emitSkipped ? 1 : 0;
-    console.log("Process exiting with code '" + exitCode + "'.");
+    log.silly('typescript', "Process exiting with code '" + exitCode + "'.");
     /*
         const babel = require('@babel/core')
         const result = babel.transformFileSync(project.moduleEsmPath, {
@@ -26,10 +32,10 @@ function displayDiagnostics(diagnostics) {
         if (diagnostic.file) {
             var _a = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start), line = _a.line, character = _a.character;
             var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
-            console.log(diagnostic.file.fileName + " (" + (line + 1) + "," + (character + 1) + "): " + message);
+            log.info('typescript', diagnostic.file.fileName + " (" + (line + 1) + "," + (character + 1) + "): " + message);
         }
         else {
-            console.log("" + ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"));
+            log.info('typescript', "" + ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"));
         }
     });
 }
@@ -144,7 +150,7 @@ function transpileCode(project) {
     var moduleText = '';
     var sourceMapText = '';
     var emitResult = program.emit(undefined, function (fileName, data, writeByteOrderMark, onError, sourceFiles) {
-        console.log('DEBUG: W2:', fileName, writeByteOrderMark, data.length);
+        log.silly('DEBUG: W2:', fileName, writeByteOrderMark, data.length);
         if (fileName.endsWith('.js')) {
             // moduleText += '/// source: ' + fileName +  '\n'
             moduleText += data;

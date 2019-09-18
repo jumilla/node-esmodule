@@ -1,8 +1,9 @@
 
+import meta from './meta'
 import {Project} from './config'
 import * as ts from 'typescript'
 import * as fs from 'fs'
-import { emit } from 'cluster';
+import * as log from 'npmlog'
 
 type TranspileResult = {
     moduleText? : string
@@ -25,8 +26,13 @@ function generate(project : Project) {
 
     displayDiagnostics(emitResult.diagnostics)
 
+    log.silly('typescript', emitResult.toString())
+    if (!emitResult.emitSkipped) {
+        log.info(meta.program, `'${project.moduleEsmPath}' generated.`)
+    }
+
     const exitCode = emitResult.emitSkipped ? 1 : 0
-    console.log(`Process exiting with code '${exitCode}'.`)
+    log.silly('typescript', `Process exiting with code '${exitCode}'.`)
 
 /*
     const babel = require('@babel/core')
@@ -49,12 +55,12 @@ function displayDiagnostics(diagnostics : ReadonlyArray<ts.Diagnostic>) {
                 diagnostic.messageText,
                 "\n"
             )
-            console.log(
+            log.info('typescript',
                 `${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`
             )
         }
         else {
-            console.log(
+            log.info('typescript',
                 `${ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n")}`
             )
         }
@@ -195,7 +201,7 @@ function transpileCode(project : Project) : TranspileResult {
     let sourceMapText = ''
 
     const emitResult = program.emit(undefined, (fileName : string, data : string, writeByteOrderMark : boolean, onError, sourceFiles? : ReadonlyArray<ts.SourceFile>) : void => {
-        console.log('DEBUG: W2:', fileName, writeByteOrderMark, data.length)
+        log.silly('DEBUG: W2:', fileName, writeByteOrderMark, data.length)
 
         if (fileName.endsWith('.js')) {
             // moduleText += '/// source: ' + fileName +  '\n'

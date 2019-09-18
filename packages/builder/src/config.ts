@@ -130,7 +130,6 @@ function parseConfig(data : ConfigSource) : Config {
             return { source : '', module: '' }
         }
     })
-    console.log(version, source, out)
     const typescript = choiseObject(DEFAULT.typescript, data.typescript)
     const babel = choiseObject(DEFAULT.babel, data.babel)
 

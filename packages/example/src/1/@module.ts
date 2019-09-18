@@ -1,9 +1,9 @@
 
-import * as json5 from 'json5'
+// import * as json5 from 'json5'
 
 namespace test {
     export const version = '1.0.0'
-    const bbb = json5
+    // const bbb = json5
 }
 
 /// <source path="src/1/a.ts">
@@ -19,7 +19,7 @@ namespace test {
 
 namespace test {
     export function ee() {
-        return a() + b() * 2 + keyof()
+        return a() + b() * 2 //+ keyof()
     }
 }
 
