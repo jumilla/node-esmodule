@@ -1,9 +1,10 @@
 
 import meta from './meta'
 import {Project} from './config'
-import * as ts from 'typescript'
-import * as fs from 'fs'
-import * as log from 'npmlog'
+import ts from 'typescript'
+import log from 'npmlog'
+import fs from 'fs'
+import fspath from 'path'
 
 type TranspileResult = {
     moduleText? : string
@@ -26,13 +27,13 @@ function generate(project : Project) {
 
     displayDiagnostics(emitResult.diagnostics)
 
-    log.silly('typescript', emitResult.toString())
+    log.silly('tsc', emitResult.toString())
     if (!emitResult.emitSkipped) {
         log.info(meta.program, `'${project.moduleEsmPath}' generated.`)
     }
 
     const exitCode = emitResult.emitSkipped ? 1 : 0
-    log.silly('typescript', `Process exiting with code '${exitCode}'.`)
+    log.silly('tsc', `Process exiting with code '${exitCode}'.`)
 
 /*
     const babel = require('@babel/core')
@@ -47,24 +48,34 @@ function generate(project : Project) {
 
 function displayDiagnostics(diagnostics : ReadonlyArray<ts.Diagnostic>) {
     diagnostics.forEach(diagnostic => {
+        const loglevel = toLogLevel(diagnostic.category)
+
+        const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
+
         if (diagnostic.file) {
-            let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(
+            const {line, character} = diagnostic.file.getLineAndCharacterOfPosition(
                 diagnostic.start!
             )
-            let message = ts.flattenDiagnosticMessageText(
-                diagnostic.messageText,
-                "\n"
-            )
-            log.info('typescript',
-                `${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`
-            )
+            const location = `${diagnostic.file.fileName} (${line + 1},${character + 1})`
+            log.log(loglevel, 'tsc', `${location}: ${message}`)
         }
         else {
-            log.info('typescript',
-                `${ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n")}`
-            )
+            log.log(loglevel, 'tsc', message)
         }
     })
+
+    function toLogLevel(category : ts.DiagnosticCategory) : string {
+        switch (category) {
+            case ts.DiagnosticCategory.Warning:
+                return 'warn'
+            case ts.DiagnosticCategory.Error:
+                return 'error'
+            case ts.DiagnosticCategory.Suggestion:
+                return 'info'
+            case ts.DiagnosticCategory.Message:
+                return 'notice'
+        }
+    }
 }
 
 function parseConfig(project : Project, sources : string[], compilerOptions : {}) : ts.ParsedCommandLine {
@@ -78,7 +89,7 @@ function parseConfig(project : Project, sources : string[], compilerOptions : {}
     return ts.parseJsonConfigFileContent({include: sources, compilerOptions}, host, project.baseDirectoryPath)
 }
 
-function readModuleSource(project : Project) : ModuleSource {
+function readModuleSourceChain(project : Project) : ModuleSource {
     let sourceText = ''
     const sourceMaps = [] as string[]
 
@@ -88,8 +99,7 @@ function readModuleSource(project : Project) : ModuleSource {
         if (match) {
             for (const path of project.codePaths) {
                 sourceText += `/// <source path="${path}">` + '\n'
-                const text1 = fs.readFileSync(path, {encoding: 'UTF-8'})
-                sourceText += text1 + '\n'
+                sourceText += fs.readFileSync(path, {encoding: 'UTF-8'}) + '\n'
                 sourceText += '/// </source>' + '\n\n'
             }
         }
@@ -110,20 +120,28 @@ function readModuleSource(project : Project) : ModuleSource {
 
 function generateModule(project : Project) : ts.EmitResult {
     const sourcePath = project.moduleSourcePath || project.definitionPath
-    const compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
-        target: 'esnext',
-        module: 'esnext',
-        moduleResolution: 'node',
-        declaration: true,
-        strict: true,
-        alwaysStrict: true,
-    })
+
+    const compilerOptions = Object.assign(
+        /* default compilerOptions */
+        {
+            target: 'esnext',
+            module: 'esnext',
+            moduleResolution: 'node',
+            declaration: true,
+            strict: true,
+            alwaysStrict: true,
+            esModuleInterop: true,
+        },
+
+        /* custom compilerOptions */
+        project.config.typescript.compilerOptions,
+    )
 
     const parsed = parseConfig(project, [sourcePath], compilerOptions)
 
     if (parsed.errors.length > 0) {
         displayDiagnostics(parsed.errors)
-        // return
+        // TODO: return
     }
 
     if (parsed.options.locale) {
@@ -134,11 +152,11 @@ function generateModule(project : Project) : ts.EmitResult {
     let moduleText = ''
     let sourceMapText = ''
 
-    const source = readModuleSource(project)
+    const source = readModuleSourceChain(project)
     const sourceFile : ts.SourceFile = ts.createSourceFile(sourcePath, source.sourceText, parsed.options.target!)
-
     const compilerHost = ts.createCompilerHost(parsed.options)
     const getSourceFileBase = compilerHost.getSourceFile
+
     compilerHost.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => fileName === sourcePath ? sourceFile : getSourceFileBase(fileName, languageVersion, onError, shouldCreateNewSourceFile),
     compilerHost.writeFile = (fileName, text) => {
         if (fileName.endsWith('.d.ts')) {
@@ -161,14 +179,28 @@ function generateModule(project : Project) : ts.EmitResult {
     emitResult.diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics)
 
     if (emitResult.diagnostics.length == 0) {
-        fs.writeFileSync(project.typePath, declarationText)
-        fs.writeFileSync(project.moduleEsmPath, moduleText)
-        fs.writeFileSync(project.sourceMapPath, sourceMapText)
+        fs.writeFileSync(touchDirectories(project.typePath), declarationText)
+
+        fs.writeFileSync(touchDirectories(project.moduleEsmPath), moduleText)
+
+        fs.writeFileSync(touchDirectories(project.sourceMapPath), sourceMapText)
     }
 
     return emitResult
+
+    function touchDirectories(filepath : string) : string {
+        const dirpath = fspath.dirname(filepath)
+
+        if (!fs.existsSync(dirpath)) {
+            fs.mkdirSync(dirpath, {
+                recursive: true
+            })
+        }
+        return filepath
+    }
 }
 
+/*
 function transpileCode(project : Project) : TranspileResult {
     const sources = project.codePaths
     const sourceMap = true
@@ -182,6 +214,7 @@ function transpileCode(project : Project) : TranspileResult {
         inlineSources: sourceMap,
         strict: true,
         alwaysStrict: false,
+        esModuleInterop: true,
         outFile: project.moduleEsmPath + '.js',
     })
 
@@ -219,6 +252,7 @@ function transpileCode(project : Project) : TranspileResult {
         diagnostics: ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics)
     }
 }
+*/
 
 export function getNewLineCharacter(options: ts.CompilerOptions | ts.PrinterOptions): string {
     const carriageReturnLineFeed = '\r\n';

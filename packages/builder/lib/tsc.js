@@ -1,9 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var meta_1 = require("./meta");
-var ts = require("typescript");
-var fs = require("fs");
-var log = require("npmlog");
+var meta_1 = __importDefault(require("./meta"));
+var typescript_1 = __importDefault(require("typescript"));
+var npmlog_1 = __importDefault(require("npmlog"));
+var fs_1 = __importDefault(require("fs"));
+var path_1 = __importDefault(require("path"));
 function compile(project) {
     // return transpile(project)
     return generate(project);
@@ -11,12 +15,12 @@ function compile(project) {
 function generate(project) {
     var emitResult = generateModule(project);
     displayDiagnostics(emitResult.diagnostics);
-    log.silly('typescript', emitResult.toString());
+    npmlog_1.default.silly('tsc', emitResult.toString());
     if (!emitResult.emitSkipped) {
-        log.info(meta_1.default.program, "'" + project.moduleEsmPath + "' generated.");
+        npmlog_1.default.info(meta_1.default.program, "'" + project.moduleEsmPath + "' generated.");
     }
     var exitCode = emitResult.emitSkipped ? 1 : 0;
-    log.silly('typescript', "Process exiting with code '" + exitCode + "'.");
+    npmlog_1.default.silly('tsc', "Process exiting with code '" + exitCode + "'.");
     /*
         const babel = require('@babel/core')
         const result = babel.transformFileSync(project.moduleEsmPath, {
@@ -29,29 +33,43 @@ function generate(project) {
 }
 function displayDiagnostics(diagnostics) {
     diagnostics.forEach(function (diagnostic) {
+        var loglevel = toLogLevel(diagnostic.category);
+        var message = typescript_1.default.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
         if (diagnostic.file) {
             var _a = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start), line = _a.line, character = _a.character;
-            var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
-            log.info('typescript', diagnostic.file.fileName + " (" + (line + 1) + "," + (character + 1) + "): " + message);
+            var location = diagnostic.file.fileName + " (" + (line + 1) + "," + (character + 1) + ")";
+            npmlog_1.default.log(loglevel, 'tsc', location + ": " + message);
         }
         else {
-            log.info('typescript', "" + ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"));
+            npmlog_1.default.log(loglevel, 'tsc', message);
         }
     });
+    function toLogLevel(category) {
+        switch (category) {
+            case typescript_1.default.DiagnosticCategory.Warning:
+                return 'warn';
+            case typescript_1.default.DiagnosticCategory.Error:
+                return 'error';
+            case typescript_1.default.DiagnosticCategory.Suggestion:
+                return 'info';
+            case typescript_1.default.DiagnosticCategory.Message:
+                return 'notice';
+        }
+    }
 }
 function parseConfig(project, sources, compilerOptions) {
     var host = {
         useCaseSensitiveFileNames: false,
         readDirectory: function (rootDir, extensions, excludes, includes, depth) { return sources; },
-        fileExists: function (path) { return fs.existsSync(path); },
-        readFile: function (path) { return fs.readFileSync(path, { encoding: 'UTF-8' }); },
+        fileExists: function (path) { return fs_1.default.existsSync(path); },
+        readFile: function (path) { return fs_1.default.readFileSync(path, { encoding: 'UTF-8' }); },
     };
-    return ts.parseJsonConfigFileContent({ include: sources, compilerOptions: compilerOptions }, host, project.baseDirectoryPath);
+    return typescript_1.default.parseJsonConfigFileContent({ include: sources, compilerOptions: compilerOptions }, host, project.baseDirectoryPath);
 }
-function readModuleSource(project) {
+function readModuleSourceChain(project) {
     var sourceText = '';
     var sourceMaps = [];
-    var text = fs.readFileSync(project.definitionPath, { encoding: 'UTF-8' });
+    var text = fs_1.default.readFileSync(project.definitionPath, { encoding: 'UTF-8' });
     for (var _i = 0, _a = text.split(/\r\n|\r|\n/); _i < _a.length; _i++) {
         var line = _a[_i];
         var match = line.match(/^\s*\/\/\/\s*<\s*source\s*\/>/);
@@ -59,8 +77,7 @@ function readModuleSource(project) {
             for (var _b = 0, _c = project.codePaths; _b < _c.length; _b++) {
                 var path = _c[_b];
                 sourceText += "/// <source path=\"" + path + "\">" + '\n';
-                var text1 = fs.readFileSync(path, { encoding: 'UTF-8' });
-                sourceText += text1 + '\n';
+                sourceText += fs_1.default.readFileSync(path, { encoding: 'UTF-8' }) + '\n';
                 sourceText += '/// </source>' + '\n\n';
             }
         }
@@ -69,7 +86,7 @@ function readModuleSource(project) {
         }
     }
     if (project.moduleSourcePath) {
-        fs.writeFileSync(project.moduleSourcePath, sourceText, { encoding: 'UTF-8' });
+        fs_1.default.writeFileSync(project.moduleSourcePath, sourceText, { encoding: 'UTF-8' });
     }
     return {
         sourceText: sourceText,
@@ -78,28 +95,33 @@ function readModuleSource(project) {
 }
 function generateModule(project) {
     var sourcePath = project.moduleSourcePath || project.definitionPath;
-    var compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
+    var compilerOptions = Object.assign(
+    /* default compilerOptions */
+    {
         target: 'esnext',
         module: 'esnext',
         moduleResolution: 'node',
         declaration: true,
         strict: true,
         alwaysStrict: true,
-    });
+        esModuleInterop: true,
+    }, 
+    /* custom compilerOptions */
+    project.config.typescript.compilerOptions);
     var parsed = parseConfig(project, [sourcePath], compilerOptions);
     if (parsed.errors.length > 0) {
         displayDiagnostics(parsed.errors);
-        // return
+        // TODO: return
     }
     if (parsed.options.locale) {
-        ts.validateLocaleAndSetLanguage(parsed.options.locale, ts.sys, parsed.errors);
+        typescript_1.default.validateLocaleAndSetLanguage(parsed.options.locale, typescript_1.default.sys, parsed.errors);
     }
     var declarationText = '';
     var moduleText = '';
     var sourceMapText = '';
-    var source = readModuleSource(project);
-    var sourceFile = ts.createSourceFile(sourcePath, source.sourceText, parsed.options.target);
-    var compilerHost = ts.createCompilerHost(parsed.options);
+    var source = readModuleSourceChain(project);
+    var sourceFile = typescript_1.default.createSourceFile(sourcePath, source.sourceText, parsed.options.target);
+    var compilerHost = typescript_1.default.createCompilerHost(parsed.options);
     var getSourceFileBase = compilerHost.getSourceFile;
     compilerHost.getSourceFile = function (fileName, languageVersion, onError, shouldCreateNewSourceFile) { return fileName === sourcePath ? sourceFile : getSourceFileBase(fileName, languageVersion, onError, shouldCreateNewSourceFile); },
         compilerHost.writeFile = function (fileName, text) {
@@ -113,21 +135,31 @@ function generateModule(project) {
                 moduleText = text;
             }
         };
-    var program = ts.createProgram([sourcePath], parsed.options, compilerHost);
+    var program = typescript_1.default.createProgram([sourcePath], parsed.options, compilerHost);
     var emitResult = program.emit();
     // const transpileResult = transpileCode(project)
-    emitResult.diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
+    emitResult.diagnostics = typescript_1.default.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
     if (emitResult.diagnostics.length == 0) {
-        fs.writeFileSync(project.typePath, declarationText);
-        fs.writeFileSync(project.moduleEsmPath, moduleText);
-        fs.writeFileSync(project.sourceMapPath, sourceMapText);
+        fs_1.default.writeFileSync(touchDirectories(project.typePath), declarationText);
+        fs_1.default.writeFileSync(touchDirectories(project.moduleEsmPath), moduleText);
+        fs_1.default.writeFileSync(touchDirectories(project.sourceMapPath), sourceMapText);
     }
     return emitResult;
+    function touchDirectories(filepath) {
+        var dirpath = path_1.default.dirname(filepath);
+        if (!fs_1.default.existsSync(dirpath)) {
+            fs_1.default.mkdirSync(dirpath, {
+                recursive: true
+            });
+        }
+        return filepath;
+    }
 }
-function transpileCode(project) {
-    var sources = project.codePaths;
-    var sourceMap = true;
-    var compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
+/*
+function transpileCode(project : Project) : TranspileResult {
+    const sources = project.codePaths
+    const sourceMap = true
+    const compilerOptions = Object.assign({}, project.config.typescript.compilerOptions, {
         target: 'esnext',
         module: 'esnext',
         moduleResolution: 'classic',
@@ -137,42 +169,52 @@ function transpileCode(project) {
         inlineSources: sourceMap,
         strict: true,
         alwaysStrict: false,
+        esModuleInterop: true,
         outFile: project.moduleEsmPath + '.js',
-    });
-    var parsed = parseConfig(project, sources, compilerOptions);
+    })
+
+    const parsed = parseConfig(project, sources, compilerOptions)
+
     if (parsed.errors.length > 0) {
-        displayDiagnostics(parsed.errors);
+        displayDiagnostics(parsed.errors)
+
         return {
             diagnostics: parsed.errors
-        };
+        }
     }
-    var program = ts.createProgram(sources, parsed.options);
-    var moduleText = '';
-    var sourceMapText = '';
-    var emitResult = program.emit(undefined, function (fileName, data, writeByteOrderMark, onError, sourceFiles) {
-        log.silly('DEBUG: W2:', fileName, writeByteOrderMark, data.length);
+
+    const program = ts.createProgram(sources, parsed.options)
+
+    let moduleText = ''
+    let sourceMapText = ''
+
+    const emitResult = program.emit(undefined, (fileName : string, data : string, writeByteOrderMark : boolean, onError, sourceFiles? : ReadonlyArray<ts.SourceFile>) : void => {
+        log.silly('DEBUG: W2:', fileName, writeByteOrderMark, data.length)
+
         if (fileName.endsWith('.js')) {
             // moduleText += '/// source: ' + fileName +  '\n'
-            moduleText += data;
-            moduleText += '\n';
+            moduleText += data
+            moduleText += '\n'
         }
         else if (fileName.endsWith('.js.map')) {
-            sourceMapText += data;
+            sourceMapText += data
         }
-    });
+    })
+
     return {
-        moduleText: moduleText,
-        sourceMapText: sourceMapText,
+        moduleText,
+        sourceMapText,
         diagnostics: ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics)
-    };
+    }
 }
+*/
 function getNewLineCharacter(options) {
     var carriageReturnLineFeed = '\r\n';
     var lineFeed = '\n';
     switch (options.newLine) {
-        case ts.NewLineKind.CarriageReturnLineFeed:
+        case typescript_1.default.NewLineKind.CarriageReturnLineFeed:
             return carriageReturnLineFeed;
-        case ts.NewLineKind.LineFeed:
+        case typescript_1.default.NewLineKind.LineFeed:
             return lineFeed;
     }
     return require('os').EOL;
@@ -181,3 +223,4 @@ exports.getNewLineCharacter = getNewLineCharacter;
 exports.default = {
     compile: compile,
 };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidHNjLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vc3JjL3RzYy50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7OztBQUNBLGdEQUF5QjtBQUV6QiwwREFBMkI7QUFDM0Isa0RBQXdCO0FBQ3hCLDBDQUFtQjtBQUNuQiw4Q0FBeUI7QUFhekIsU0FBUyxPQUFPLENBQUMsT0FBaUI7SUFDOUIsNEJBQTRCO0lBQzVCLE9BQU8sUUFBUSxDQUFDLE9BQU8sQ0FBQyxDQUFBO0FBQzVCLENBQUM7QUFFRCxTQUFTLFFBQVEsQ0FBQyxPQUFpQjtJQUMvQixJQUFNLFVBQVUsR0FBRyxjQUFjLENBQUMsT0FBTyxDQUFDLENBQUE7SUFFMUMsa0JBQWtCLENBQUMsVUFBVSxDQUFDLFdBQVcsQ0FBQyxDQUFBO0lBRTFDLGdCQUFHLENBQUMsS0FBSyxDQUFDLEtBQUssRUFBRSxVQUFVLENBQUMsUUFBUSxFQUFFLENBQUMsQ0FBQTtJQUN2QyxJQUFJLENBQUMsVUFBVSxDQUFDLFdBQVcsRUFBRTtRQUN6QixnQkFBRyxDQUFDLElBQUksQ0FBQyxjQUFJLENBQUMsT0FBTyxFQUFFLE1BQUksT0FBTyxDQUFDLGFBQWEsaUJBQWMsQ0FBQyxDQUFBO0tBQ2xFO0lBRUQsSUFBTSxRQUFRLEdBQUcsVUFBVSxDQUFDLFdBQVcsQ0FBQyxDQUFDLENBQUMsQ0FBQyxDQUFDLENBQUMsQ0FBQyxDQUFDLENBQUE7SUFDL0MsZ0JBQUcsQ0FBQyxLQUFLLENBQUMsS0FBSyxFQUFFLGdDQUE4QixRQUFRLE9BQUksQ0FBQyxDQUFBO0lBRWhFOzs7Ozs7OztNQVFFO0FBQ0YsQ0FBQztBQUVELFNBQVMsa0JBQWtCLENBQUMsV0FBMEM7SUFDbEUsV0FBVyxDQUFDLE9BQU8sQ0FBQyxVQUFBLFVBQVU7UUFDMUIsSUFBTSxRQUFRLEdBQUcsVUFBVSxDQUFDLFVBQVUsQ0FBQyxRQUFRLENBQUMsQ0FBQTtRQUVoRCxJQUFNLE9BQU8sR0FBRyxvQkFBRSxDQUFDLDRCQUE0QixDQUFDLFVBQVUs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

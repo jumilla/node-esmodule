@@ -5,8 +5,8 @@ export declare type ConfigSource = {
     include?: string | string[];
     exclude?: string | string[];
     out?: string | {
-        source: string;
-        module: string;
+        source?: string;
+        module?: string;
     };
     typescript?: {};
     babel?: {};
@@ -22,7 +22,7 @@ export declare type Config = {
     include: string[];
     exclude: string[];
     out: {
-        source: string;
+        source?: string;
         module: string;
     };
     typescript: {

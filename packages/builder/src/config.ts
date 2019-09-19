@@ -1,8 +1,8 @@
 
-import * as json5 from 'json5'
-import * as fs from 'fs'
-import * as path from 'path'
-import * as glob from 'glob'
+import json5 from 'json5'
+import glob from 'glob'
+import fs from 'fs'
+import fspath from 'path'
 
 export type ConfigSource = {
     version? : string
@@ -10,7 +10,7 @@ export type ConfigSource = {
     source? : string
     include? : string | string[]
     exclude? : string | string[]
-    out? : string | { source : string, module : string }
+    out? : string | { source? : string, module? : string }
     typescript? : {}
     babel? : {}
 }
@@ -26,7 +26,7 @@ export type Config = {
     source : string
     include : string[]
     exclude : string[]
-    out : { source : string, module : string }
+    out : { source? : string, module : string }
     typescript : { compilerOptions : {} }
     babel : {}
 }
@@ -60,7 +60,7 @@ const DEFAULT = {
 } as Config
 
 function resolvePath(baseDirectoryPath : string, filename : string) : string {
-    return path.normalize(path.join(baseDirectoryPath, filename))
+    return fspath.normalize(fspath.join(baseDirectoryPath, filename))
 }
 
 function exists(filePath : string) : boolean {
@@ -73,7 +73,7 @@ function exists(filePath : string) : boolean {
     }
 }
 
-function load(configFilePath : string, baseDirectoryPath : string = path.dirname(configFilePath)) : Project {
+function load(configFilePath : string, baseDirectoryPath : string = fspath.dirname(configFilePath)) : Project {
     const text = fs.readFileSync(configFilePath, {encoding: 'UTF-8'})
 
     const config = parseConfig(json5.parse(text))
@@ -82,9 +82,9 @@ function load(configFilePath : string, baseDirectoryPath : string = path.dirname
         baseDirectoryPath,
         configFilePath,
         config,
-        definitionPath: baseDirectoryPath + '/' + config.source,
+        definitionPath: resolvePath(baseDirectoryPath, config.source),
         codePaths : expandFilePatterns(baseDirectoryPath, config),
-        moduleSourcePath : resolvePath(baseDirectoryPath, config.out.source),
+        moduleSourcePath : config.out.source ? resolvePath(baseDirectoryPath, config.out.source) : undefined,
         typePath : resolvePath(baseDirectoryPath, config.out.module + '.d.ts'),
         moduleEsmPath : resolvePath(baseDirectoryPath, config.out.module + '.mjs'),
         // moduleCjsPath : 'lib/example-1.js',
@@ -114,20 +114,21 @@ function parseConfig(data : ConfigSource) : Config {
     const exclude = choiseValue(DEFAULT.exclude, typeof data.exclude === 'string' ? [data.exclude] : data.exclude)
     const out = choiseValue(DEFAULT.out, data.out, value => {
         if (typeof value === 'string') {
-            return { source, module: value }
+            return { module: value }
         }
         else if (typeof value === 'object') {
-            return value as { source : string, module : string }
+            // TODO: check
+            return value
         }
         else if (typeof value === 'undefined') {
             // TODO Error handling
             console.log('Parameter "out" must need.')
-            return { source : '', module: '' }
+            return { module: '' }
         }
         else {
             // TODO Error handling
             console.log('Parameter "out" must need.')
-            return { source : '', module: '' }
+            return { module: '' }
         }
     })
     const typescript = choiseObject(DEFAULT.typescript, data.typescript)
@@ -173,12 +174,14 @@ function expandFilePatterns(directoryPath : string, config : Config) : string[] 
             if (match == resolvePath(directoryPath, config.source)) continue
 
             // exclude ${out.source} file
-            if (match == resolvePath(directoryPath, config.out.source)) continue
+            if (config.out.source) {
+                if (match == resolvePath(directoryPath, config.out.source)) continue
+            }
 
             // exclude ${exclude} pattern
             if (excludePaths.indexOf(match) != -1) continue
 
-            result.push(path.normalize(match))
+            result.push(fspath.normalize(match))
         }
     }
 
