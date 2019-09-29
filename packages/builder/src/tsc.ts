@@ -168,7 +168,7 @@ function generateModule(project : Project) : ts.EmitResult {
         else {
             // Quick Fix: import 'xx' -> import 'xx.mjs'
             const sourceDir = fspath.dirname(project.moduleEsmPath)
-            text = text.replace(/^\s*(import\s.+)(?:'(.*?)'|"(.*?)")/g, ($0, $1, $2, $3) => {
+            text = text.replace(/^\s*(import\s.+)(?:'(.*?)'|"(.*?)")/gm, ($0, $1, $2, $3) => {
                 const path = fspath.join(sourceDir, ($2 || $3) + '.mjs')
                 return fs.existsSync(path) ? `${$1}'${$2 || $3}.mjs'` : $0
             })
