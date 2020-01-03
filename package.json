@@ -2,8 +2,8 @@
     "private": true,
     "name": "node-esmodule",
     "devDependencies": {
-        "lerna": "^3.16.0",
-        "typescript": "^3.6.0"
+        "lerna": "^3.20.0",
+        "typescript": "^3.7.0"
     },
     "scripts": {
         "build": "yarn run tsc -p packages/builder/"
