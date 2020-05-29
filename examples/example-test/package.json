@@ -13,8 +13,8 @@
     "test": "node test.mjs"
   },
   "dependencies": {
-    "esmodule-example": "^0.7.8",
-    "esmodule-server": "^0.7.0"
+    "esmodule-example": "^0.8.0",
+    "esmodule-server": "^0.8.0"
   },
-  "version": "0.7.8"
+  "version": "0.8.0"
 }
