@@ -1,11 +1,12 @@
 {
+  "private": true,
   "name": "esmodule-example",
   "version": "0.7.8",
   "description": "ES Modules example",
   "author": "Fumio Furukawa <fumio@jumilla.me>",
   "homepage": "https://github.com/jumilla/node-esmodule#readme",
   "license": "Apache-2.0",
-  "main": "lib/example-1",
+  "main": "lib/example-1.mjs",
   "types": "lib/example-1.d.ts",
   "directories": {
     "lib": "lib",

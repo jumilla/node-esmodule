@@ -1,4 +1,4 @@
 
-import test, {a} from 'esmodule-example'
+import example, {test} from 'esmodule-example'
 
-console.log(test.ee(), a)
+console.log(example.ee(), test.ee())

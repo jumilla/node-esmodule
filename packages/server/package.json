@@ -33,12 +33,11 @@
     "url": "https://github.com/jumilla/node-esmodule/issues"
   },
   "dependencies": {
-    "@types/glob": "^7.1.0",
+    "@types/glob": "^7.1.1",
     "@types/json5": "^0.0.30",
-    "@types/node": "^10.10.3",
-    "chalk": "^2.4.1",
-    "glob": "^7.1.3",
-    "json5": "^2.0.1"
+    "chalk": "^4.0.0",
+    "glob": "^7.1.6",
+    "json5": "^2.1.3"
   },
   "gitHead": "2fc52a1da0116d4479444579676d5a79f185403c"
 }

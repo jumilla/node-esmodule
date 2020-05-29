@@ -10,7 +10,7 @@
     "test": "__tests__"
   },
   "scripts": {
-    "test": "node --experimental-modules test.mjs"
+    "test": "node test.mjs"
   },
   "dependencies": {
     "esmodule-example": "^0.7.8",
