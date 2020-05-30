@@ -6,8 +6,5 @@
         "*"
     ],
     "exclude": [],
-    "out": {
-        "source" : "@module.ts",
-        "module" : "../../lib/example-1"
-    }
+    "out": "../../lib/example-1"
 }

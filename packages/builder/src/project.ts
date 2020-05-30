@@ -22,7 +22,7 @@ export type Project = {
 	moduleSourcePath?: string
 	typePath: string
 	moduleEsmPath: string
-	moduleCjsPath?: string
+	// moduleCjsPath?: string
 	sourceMapPath: string
 	sourceMap: SourceMap
 }
@@ -32,19 +32,17 @@ function load(configFilePath: string, baseDirectoryPath: string = P.extractDirec
 
 	const config = config_.parse(text)
 
+	const definitionPath = P.resolvePath(baseDirectoryPath, config.source)
+
 	const codePaths = expandFilePatterns(baseDirectoryPath, config)
 
-	const sourceMap = new SourceMap()
-
-	for (const path of codePaths) {
-		// sourceMap.addSource(path)
-	}
+	const sourceMap = makeSourceMap(definitionPath, codePaths)
 
 	return {
 		baseDirectoryPath,
 		configFilePath,
 		config,
-		definitionPath: P.resolvePath(baseDirectoryPath, config.source),
+		definitionPath,
 		codePaths,
 		moduleSourcePath: config.out.source ? P.resolvePath(baseDirectoryPath, config.out.source) : undefined,
 		typePath: P.resolvePath(baseDirectoryPath, config.out.module + '.d.ts'),
@@ -95,6 +93,41 @@ function expandFilePatterns(directoryPath: string, config: Config): string[] {
 	}
 
 	return result
+}
+
+function makeSourceMap(definitionPath: string, codePaths: string[]): SourceMap {
+	const sourceMap = new SourceMap()
+
+	let afterPartLineIndex = 0
+
+	const lines = P.readFile(definitionPath).split(/\r\n|\n/)
+
+	for (let index = 0; index < lines.length; ++index) {
+		const line = lines[index]
+
+		const match = line.match(/^\s*\/\/\/\s*<\s*source\s*\/>/)
+
+		if (match) {
+			// 1. before part
+			sourceMap.addSource(definitionPath, lines.slice(0, index).join('\n'), 0, index)
+
+			afterPartLineIndex = index
+
+			// 2. source part
+			for (const path of codePaths) {
+				const lines = P.readFile(path).split(/\r\n|\n/)
+
+				sourceMap.addSource(path, lines.join('\n'), 0, lines.length)
+			}
+
+			break
+		}
+	}
+
+	// 3. after part
+	sourceMap.addSource(definitionPath, lines.slice(afterPartLineIndex).join('\n'), afterPartLineIndex, lines.length - afterPartLineIndex)
+
+	return sourceMap
 }
 
 function build(project: Project): void {

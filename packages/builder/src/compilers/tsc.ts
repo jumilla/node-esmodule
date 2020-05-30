@@ -40,10 +40,13 @@ function displayDiagnostics(project: Project, diagnostics: ReadonlyArray<ts.Diag
 		const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
 
 		if (diagnostic.file) {
-			const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(
+			const { line: lineOfModule, character: column } = diagnostic.file.getLineAndCharacterOfPosition(
 				diagnostic.start!
 			)
-			const location = `${diagnostic.file.fileName} (${line + 1},${character + 1})`
+
+			const { path, line } = project.sourceMap.getLocation(lineOfModule)
+
+			const location = `${path} (${line + 1},${column + 1})`
 			log.log(loglevel, 'tsc', `${location}: ${message}`)
 		}
 		else {
@@ -77,23 +80,8 @@ function parseConfig(project: Project, sources: string[], compilerOptions: {}): 
 }
 
 function readModuleSourceChain(project: Project): ModuleSource {
-	let sourceText = ''
+	let sourceText = project.sourceMap.sources().map(_ => _.content).join('\n')
 	const sourceMaps = [] as string[]
-
-	const text = P.readFile(project.definitionPath)
-	for (let line of text.split(/\r\n|\r|\n/)) {
-		const match = line.match(/^\s*\/\/\/\s*<\s*source\s*\/>/)
-		if (match) {
-			for (const path of project.codePaths) {
-				sourceText += `/// <source path="${path}">` + '\n'
-				sourceText += P.readFile(path) + '\n'
-				sourceText += '/// </source>' + '\n\n'
-			}
-		}
-		else {
-			sourceText += line + '\n'
-		}
-	}
 
 	if (project.moduleSourcePath) {
 		P.writeFile(project.moduleSourcePath, sourceText)
@@ -144,25 +132,30 @@ function generateModule(project: Project): ts.EmitResult {
 	const compilerHost = ts.createCompilerHost(parsed.options)
 	const getSourceFileBase = compilerHost.getSourceFile
 
-	compilerHost.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => fileName === sourcePath ? sourceFile : getSourceFileBase(fileName, languageVersion, onError, shouldCreateNewSourceFile),
-		compilerHost.writeFile = (fileName, text) => {
-			if (fileName.endsWith('.d.ts')) {
-				declarationText += text
-			}
-			else if (fileName.endsWith('.map')) {
-				sourceMapText = text;
-			}
-			else {
-				// Quick Fix: import 'xx' -> import 'xx.mjs'
-				const sourceDir = P.extractDirectoryPath(project.moduleEsmPath)
-				text = text.replace(/^\s*(import\s.+)(?:'(.*?)'|"(.*?)")/gm, ($0, $1, $2, $3) => {
-					const path = P.joinPath(sourceDir, ($2 || $3) + '.mjs')
-					return P.testFileExists(path) ? `${$1}'${$2 || $3}.mjs'` : $0
-				})
+	compilerHost.getSourceFile =
+		(fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
+			fileName === sourcePath
+				? sourceFile
+				: getSourceFileBase(fileName, languageVersion, onError, shouldCreateNewSourceFile)
 
-				moduleText = text;
-			}
+	compilerHost.writeFile = (fileName, text) => {
+		if (fileName.endsWith('.d.ts')) {
+			declarationText += text
 		}
+		else if (fileName.endsWith('.map')) {
+			sourceMapText = text;
+		}
+		else {
+			// Quick Fix: import 'xx' -> import 'xx.mjs'
+			const sourceDir = P.extractDirectoryPath(project.moduleEsmPath)
+			text = text.replace(/^\s*(import\s.+)(?:'(.*?)'|"(.*?)")/gm, ($0, $1, $2, $3) => {
+				const path = P.joinPath(sourceDir, ($2 || $3) + '.mjs')
+				return P.testFileExists(path) ? `${$1}'${$2 || $3}.mjs'` : $0
+			})
+
+			moduleText = text;
+		}
+	}
 
 	const program = ts.createProgram([sourcePath], parsed.options, compilerHost)
 

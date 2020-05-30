@@ -14,7 +14,6 @@ export declare type Project = {
     moduleSourcePath?: string;
     typePath: string;
     moduleEsmPath: string;
-    moduleCjsPath?: string;
     sourceMapPath: string;
     sourceMap: SourceMap;
 };

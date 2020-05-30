@@ -4,17 +4,6 @@ import json5 from 'json5'
 
 
 
-type ConfigSource = {
-	version?: string
-	compiler?: string          // undefined or 'typescript' or 'babel'
-	source?: string
-	include?: string | string[]
-	exclude?: string | string[]
-	out?: string | { source?: string, module?: string }
-	typescript?: {}
-	babel?: {}
-}
-
 export enum CompilerKind {
 	TypeScript = 'typescript',
 	Babel = 'babel',
@@ -49,7 +38,7 @@ const DEFAULT = {
 } as Config
 
 function parse(image: string): Config {
-	const data = json5.parse(image)
+	const data: Partial<Config> = json5.parse(image)
 
 	const choiseValue = <T>(defaultValue: T, specifiedValue: any, checker?: (value: any) => T): T => {
 		const value = specifiedValue || defaultValue
