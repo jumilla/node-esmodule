@@ -15,6 +15,7 @@ namespace test {
         return 99
     }
 }
+}
 
 
 namespace test {

@@ -1,9 +1,11 @@
 
-import fs from 'fs'
+import P from './platform'
 
-const packageInfo = JSON.parse(fs.readFileSync(__dirname + '/../package.json', {encoding: 'UTF-8'}))
+
+
+const packageInfo = JSON.parse(P.readFile(__dirname + '/../package.json'))
 
 export default {
-    version: packageInfo.version,
-    program: 'esmc',
+	version: packageInfo.version,
+	program: 'esmc',
 }

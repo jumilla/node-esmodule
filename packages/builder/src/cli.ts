@@ -1,40 +1,52 @@
 
 import meta from './meta'
 import config from './config'
+import project_ from './project'
+import P from './platform'
 import chalk from 'chalk'
-import * as log from 'npmlog'
-import tsc from './tsc'
+import log from 'npmlog'
 
-// log.level = 'silly'
 
-let directoryPath = '.'
 
-if (process.argv.length >= 3) {
-    directoryPath = process.argv[2]
+type Program = {
+	directoryPath: string
 }
 
-if (!config.exists(config.resolvePath(directoryPath, config.FILENAME))) {
-    log.error(meta.program, chalk.red('No config'))
-    process.exit()
-}
+	;
+(function () {
+	const program: Program = {
+		directoryPath: '.'
+	}
 
-log.info(meta.program, chalk.green('ES Module builder'))
-log.info(meta.program, chalk.yellow('Version: ') + meta.version)
+	// log.level = 'silly'
 
-const project = config.load(config.resolvePath(directoryPath, config.FILENAME))
-log.verbose(meta.program, "...config loaded")
-log.silly(meta.program, project.config.toString())
-log.verbose(meta.program, chalk.yellow('Path: '), config.resolvePath(directoryPath, config.FILENAME))
-log.verbose(meta.program, chalk.yellow('Version: '), project.config.version)
-log.verbose(meta.program, chalk.yellow('Files: '), project.codePaths)
+	if (process.argv.length >= 3) {
+		program.directoryPath = process.argv[2]
+	}
 
+	launch(program)
+})()
 
+function launch(program: Program): void {
+	const configFilePath = P.resolvePath(program.directoryPath, config.FILENAME)
 
-switch (project.config.compiler) {
-    case 'typescript':
-        tsc.compile(project)
-        break
+	if (!P.testFileExists(configFilePath)) {
+		log.error(meta.program, chalk.red('No config'))
+		process.exit()
+	}
 
-    default:
-        log.error(meta.program, 'Invalid compiler specified.')
+	log.info(meta.program, chalk.green('ES Module builder'))
+	log.info(meta.program, chalk.yellow('Version: ') + meta.version)
+
+	const project = project_.load(configFilePath)
+
+	log.verbose(meta.program, "...config loaded")
+
+	log.silly(meta.program, project.config.toString())
+
+	log.verbose(meta.program, chalk.yellow('Path: '), configFilePath)
+	log.verbose(meta.program, chalk.yellow('Version: '), project.config.version)
+	log.verbose(meta.program, chalk.yellow('Files: '), project.codePaths)
+
+	project_.build(project)
 }
