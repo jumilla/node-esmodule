@@ -1,6 +1,6 @@
 
 import meta from './meta'
-import config from './config'
+import { FILENAME as CONFIG_FILENAME } from './config'
 import project_ from './project'
 import P from './platform'
 import chalk from 'chalk'
@@ -12,8 +12,7 @@ type Program = {
 	directoryPath: string
 }
 
-	;
-(function () {
+{
 	const program: Program = {
 		directoryPath: '.'
 	}
@@ -25,10 +24,12 @@ type Program = {
 	}
 
 	launch(program)
-})()
+}
 
-function launch(program: Program): void {
-	const configFilePath = P.resolvePath(program.directoryPath, config.FILENAME)
+function launch(
+	program: Program,
+): void {
+	const configFilePath = P.resolvePath(program.directoryPath, CONFIG_FILENAME)
 
 	if (!P.testFileExists(configFilePath)) {
 		log.error(meta.program, chalk.red('No config'))

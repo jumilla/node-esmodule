@@ -11,6 +11,11 @@ export declare class SourceMap {
         path: string;
         line: number;
     };
+    originalSourceMap(wholeSourceMap: {
+        [name: string]: any;
+    }): Promise<{
+        [name: string]: any;
+    }>;
     toString(): string;
     private _sources;
 }

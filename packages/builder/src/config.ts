@@ -1,5 +1,4 @@
 
-import P from './platform'
 import json5 from 'json5'
 
 
@@ -9,26 +8,32 @@ export enum CompilerKind {
 	Babel = 'babel',
 }
 
+export enum SourceMapKind {
+	None = 'none',
+	File = 'file',
+	Inline = 'inline',
+}
+
 export type Config = {
 	version: string
 	compiler: CompilerKind
 	source: string
 	include: string[]
 	exclude: string[]
-	out: { source?: string, module: string }
+	out: { source?: string, module: string, sourceMap: SourceMapKind }
 	typescript: { compilerOptions: {} }
 	babel: {}
 }
 
-const FILENAME = 'esmconfig.json'
+export const FILENAME = 'esmconfig.json'
 
 const DEFAULT = {
-	version: '0.1',
+	version: '1.0',
 	compiler: CompilerKind.TypeScript,
 	source: 'module.ts',
 	include: ['*'],
 	exclude: [],
-	out: { source: '@module.ts', module: 'module.js' },
+	out: { module: 'module.js', sourceMap: SourceMapKind.None },
 	typescript: {
 		compilerOptions: {
 			locale: process.env.LANG!.substring(0, 2),
@@ -37,7 +42,9 @@ const DEFAULT = {
 	babel: {},
 } as Config
 
-function parse(image: string): Config {
+function parse(
+	image: string,
+): Config {
 	const data: Partial<Config> = json5.parse(image)
 
 	const choiseValue = <T>(defaultValue: T, specifiedValue: any, checker?: (value: any) => T): T => {
@@ -61,21 +68,31 @@ function parse(image: string): Config {
 	const exclude = choiseValue(DEFAULT.exclude, typeof data.exclude === 'string' ? [data.exclude] : data.exclude)
 	const out = choiseValue(DEFAULT.out, data.out, value => {
 		if (typeof value === 'string') {
-			return { module: value }
+			return { module: value, sourceMap: SourceMapKind.None }
 		}
 		else if (typeof value === 'object') {
+			const sourceMap = choiseValue(DEFAULT.out.sourceMap, value.sourceMap, (value: string) => {
+				const lowerValue = value.toLowerCase()
+				if (value == 'file') return SourceMapKind.File
+				if (value == 'inline') return SourceMapKind.Inline
+				return SourceMapKind.None
+			})
 			// TODO: check
-			return value
+			return {
+				source: value.source,
+				module: value.module || '',
+				sourceMap: sourceMap,
+			}
 		}
 		else if (typeof value === 'undefined') {
 			// TODO Error handling
 			console.log('Parameter "out" must need.')
-			return { module: '' }
+			return { module: '', sourceMap: SourceMapKind.None }
 		}
 		else {
 			// TODO Error handling
 			console.log('Parameter "out" must need.')
-			return { module: '' }
+			return { module: '', sourceMap: SourceMapKind.None }
 		}
 	})
 	const typescript = choiseObject(DEFAULT.typescript, data.typescript)
@@ -95,7 +112,4 @@ function parse(image: string): Config {
 
 
 
-export default {
-	FILENAME,
-	parse,
-}
+export default parse

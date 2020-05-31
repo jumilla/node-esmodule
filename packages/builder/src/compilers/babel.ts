@@ -6,12 +6,14 @@
 import { Project } from '../project'
 import P from '../platform'
 
-function build(project: Project): void {
+
+
+async function build(project: Project) {
 	const babel = require('@babel/core')
-	const result = babel.transformFileSync(project.moduleEsmPath, {
-		presets: [[require('@babel/preset-env'), { targets: { 'node': '6.0' } }]],
-		plugins: [],
-	})
+	// const result = babel.transformFileSync(project.moduleEsmPath, {
+	// 	presets: [[require('@babel/preset-env'), { targets: { 'node': '6.0' } }]],
+	// 	plugins: [],
+	// })
 
 	// P.writeFile(project.moduleCjsPath, result.code)
 	// console.log(result)

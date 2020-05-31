@@ -1,4 +1,8 @@
 
+import { SourceMapConsumer, Mapping, SourceMapGenerator, RawSourceMap } from 'source-map'
+
+
+
 export interface Source {
 	content: string
 	path: string
@@ -7,7 +11,12 @@ export interface Source {
 }
 
 export class SourceMap {
-	addSource(path: string, content: string, lineStart: number = 0, lineCount: number = calcLineCount(content)): void {
+	addSource(
+		path: string,
+		content: string,
+		lineStart: number = 0,
+		lineCount: number = calcLineCount(content),
+	): void {
 		const source = {
 			path,
 			content,
@@ -18,15 +27,17 @@ export class SourceMap {
 		this._sources.push(source)
 	}
 
-	sources(): Source[] {
+	sources(
+	): Source[] {
 		return this._sources
 	}
 
-	getLocation(wholeLine: number): { path: string, line: number } {
+	getLocation(
+		wholeLine: number,
+	): { path: string, line: number } {
 		let remain = wholeLine
 
 		for (const source of this._sources) {
-			// console.log(`${source.path}:${source.lineStart}:${source.lineCount}`, remain)
 			if (remain >= source.lineCount) {
 				remain -= source.lineCount
 				continue
@@ -41,14 +52,43 @@ export class SourceMap {
 		throw new Error('wholeLineNo is out of range.')
 	}
 
-	toString(): string {
+	async originalSourceMap(
+		wholeSourceMap: { [name: string]: any },
+	): Promise<{ [name: string]: any }> {
+		const consumer = await new SourceMapConsumer(wholeSourceMap as RawSourceMap)
+
+		const generator = new SourceMapGenerator({
+			file: consumer.file,
+			sourceRoot: '',
+		})
+
+		consumer.eachMapping(record => {
+			const { path, line } = this.getLocation(record.originalLine)
+			const column = record.originalColumn
+
+			// console.log(path, line, column)
+
+			generator.addMapping({
+				generated: { line: record.generatedLine, column: record.generatedColumn },
+				original: { line: line, column: column },
+				source: path,
+			})
+		})
+
+		return generator.toJSON()
+	}
+
+	toString(
+	): string {
 		return this._sources.map(_ => `${_.path}:${_.lineStart}:${_.lineCount}`).join('\n')
 	}
 
 	private _sources: Source[] = []
 }
 
-function calcLineCount(content: string): number {
+function calcLineCount(
+	content: string,
+): number {
 	let count = 0
 
 	count = content.split(/\r\n|\n/).length

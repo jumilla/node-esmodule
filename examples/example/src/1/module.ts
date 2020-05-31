@@ -9,4 +9,5 @@ namespace test {
 /// <source/>
 
 export default test
+
 export { test }

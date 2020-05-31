@@ -6,5 +6,8 @@
         "*"
     ],
     "exclude": [],
-    "out": "../../lib/example-1"
+    "out": {
+        "module": "../../lib/example-1",
+        "sourceMap": "file"
+    }
 }

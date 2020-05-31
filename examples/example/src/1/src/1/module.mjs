@@ -29,6 +29,7 @@ var abc = 10;
     }
     test.z = z;
 })(test || (test = {}));
+/// <source/>
 export default test;
 export { test };
-//# sourceMappingURL=example-1.mjs.map
+//# sourceMappingURL=module.js.map

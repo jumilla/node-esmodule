@@ -1,39 +1,200 @@
 
 import meta from '../meta'
+import { SourceMapKind } from '../config'
 import { Project } from '../project'
 import P from '../platform'
-import ts from 'typescript'
 import log from 'npmlog'
+import type TS from 'typescript'
 
 
 
-type TranspileResult = {
-	moduleText?: string
-	sourceMapText?: string
-	diagnostics: ts.Diagnostic[]
+let ts: typeof TS
+
+
+
+type Output = {
+	module: string
+	moduleMap?: string
+	declaration: string
+	declarationMap?: string
 }
 
-type ModuleSource = {
-	sourceText: string
-	sourceMaps: string[]
-}
+type TranspileResult = Output & TS.EmitResult
 
-function build(project: Project): void {
-	const emitResult = generateModule(project)
+async function build(
+	project: Project,
+) {
+	ts = await import('typescript')
 
-	displayDiagnostics(project, emitResult.diagnostics)
+	const sourcePath = project.moduleName + '.ts'
 
-	log.silly('tsc', emitResult.toString())
+	const sourceText = project.sourceMap.sources().map(_ => _.content).join('\n')
 
-	if (!emitResult.emitSkipped) {
-		log.info(meta.program, `'${project.moduleEsmPath}' generated.`)
+	if (project.moduleSourcePath) {
+		P.writeFile(project.moduleSourcePath, sourceText)
 	}
 
-	const exitCode = emitResult.emitSkipped ? 1 : 0
+	const compilerOptions = Object.assign(
+		/* default compilerOptions */
+		{
+			target: 'esnext',
+			module: 'esnext',
+			moduleResolution: 'node',
+			declaration: true,
+			strict: true,
+			alwaysStrict: true,
+			esModuleInterop: true,
+			declarationMap: project.config.out.sourceMap != SourceMapKind.None,
+			sourceMap: project.config.out.sourceMap != SourceMapKind.None,
+		},
+
+		/* custom compilerOptions */
+		project.config.typescript.compilerOptions,
+	)
+
+	const parsed = parseConfig(project, [sourcePath], compilerOptions)
+
+	if (parsed.errors.length > 0) {
+		displayDiagnostics(project, parsed.errors)
+		return
+	}
+
+	if (parsed.options.locale) {
+		ts.validateLocaleAndSetLanguage(parsed.options.locale, ts.sys, parsed.errors)
+	}
+
+	const result = await transpileModule(
+		project,
+		parsed.options,
+		ts.createSourceFile(sourcePath, sourceText, parsed.options.target!),
+	)
+
+	log.silly('tsc', result.toString())
+
+	displayDiagnostics(project, result.diagnostics)
+
+	const errorOccurred = result.diagnostics.length > 0
+
+	if (result.diagnostics.length == 0) {
+		if (result.moduleMap) {
+			result.module += `//# sourceMappingURL=${project.moduleName}.mjs.map`
+		}
+		writeFile(project, '.mjs', result.module)
+
+		if (result.declarationMap) {
+			result.declaration += `//# sourceMappingURL=${project.moduleName}.d.ts.map`
+		}
+		writeFile(project, '.d.ts', result.declaration)
+
+		if (result.moduleMap) {
+			const map = await project.sourceMap.originalSourceMap(JSON.parse(result.moduleMap))
+			map.file = project.moduleName + '.mjs'
+			writeFile(project, '.mjs.map', JSON.stringify(map))
+		}
+
+		if (result.declarationMap) {
+			const map = await project.sourceMap.originalSourceMap(JSON.parse(result.declarationMap))
+			writeFile(project, '.d.ts.map', JSON.stringify(map))
+		}
+	}
+
+	const exitCode = errorOccurred ? 1 : 0
 	log.silly('tsc', `Process exiting with code '${exitCode}'.`)
 }
 
-function displayDiagnostics(project: Project, diagnostics: ReadonlyArray<ts.Diagnostic>) {
+function parseConfig(
+	project: Project,
+	sources: string[],
+	compilerOptions: {},
+): TS.ParsedCommandLine {
+	const host: TS.ParseConfigHost = {
+		useCaseSensitiveFileNames: false,
+		readDirectory: (rootDir: string, extensions: ReadonlyArray<string>, excludes: ReadonlyArray<string> | undefined, includes: ReadonlyArray<string>, depth?: number): string[] => sources,
+		fileExists: (path: string): boolean => P.testFileExists(path),
+		readFile: (path: string): string | undefined => P.readFile(path),
+	}
+
+	return ts.parseJsonConfigFileContent({ include: sources, compilerOptions }, host, project.baseDirectoryPath)
+}
+
+async function transpileModule(
+	project: Project,
+	options: TS.CompilerOptions,
+	sourceFile: TS.SourceFile,
+): Promise<TranspileResult> {
+	const output: Output = {
+		module: '',
+		declaration: '',
+	}
+
+	const compilerHost = ts.createCompilerHost(options)
+
+	const getSourceFileBase = compilerHost.getSourceFile
+
+	compilerHost.getSourceFile =
+		(fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
+			fileName === sourceFile.fileName
+				? sourceFile
+				: getSourceFileBase(fileName, languageVersion, onError, shouldCreateNewSourceFile)
+
+	compilerHost.writeFile = async (fileName, text) => {
+		if (fileName.endsWith('.js')) {
+			// Quick Fix: import 'xx' -> import 'xx.mjs'
+			const sourceDir = P.extractDirectoryPath(project.config.out.module)
+
+			text = text.replace(/^\s*(import\s.+)(?:'(.*?)'|"(.*?)")/gm, ($0, $1, $2, $3) => {
+				const path = P.joinPath(sourceDir, ($2 || $3) + '.mjs')
+				return P.testFileExists(path) ? `${$1}'${$2 || $3}.mjs'` : $0
+			})
+
+			text = text.replace(/\/\/#\ssourceMappingURL=.+$/, '')
+
+			output.module = text
+		}
+		else if (fileName.endsWith('.d.ts')) {
+			text = text.replace(/\/\/#\ssourceMappingURL=.+$/, '')
+
+			output.declaration = text
+		}
+		else if (fileName.endsWith('.js.map')) {
+			output.moduleMap = text
+		}
+		else if (fileName.endsWith('.d.ts.map')) {
+			output.declarationMap = text
+		}
+		else {
+			log.warn('esmc', 'Unknown generated file.')
+		}
+	}
+
+	const program = ts.createProgram([sourceFile.fileName], options, compilerHost)
+
+	const emitResult = program.emit()
+
+	emitResult.diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics)
+
+	return {
+		...output,
+		...emitResult,
+	}
+}
+
+function writeFile(
+	project: Project,
+	extension: string,
+	text: string,
+) {
+	const path = P.resolvePath(project.baseDirectoryPath, project.config.out.module + extension)
+
+	P.writeFile(P.touchDirectories(path), text)
+
+	log.info(meta.program, `'${path}' generated.`)
+}
+
+function displayDiagnostics(
+	project: Project,
+	diagnostics: ReadonlyArray<TS.Diagnostic>,
+) {
 	diagnostics.forEach(diagnostic => {
 		const loglevel = toLogLevel(diagnostic.category)
 
@@ -54,7 +215,9 @@ function displayDiagnostics(project: Project, diagnostics: ReadonlyArray<ts.Diag
 		}
 	})
 
-	function toLogLevel(category: ts.DiagnosticCategory): string {
+	function toLogLevel(
+		category: TS.DiagnosticCategory,
+	): string {
 		switch (category) {
 			case ts.DiagnosticCategory.Warning:
 				return 'warn'
@@ -66,114 +229,6 @@ function displayDiagnostics(project: Project, diagnostics: ReadonlyArray<ts.Diag
 				return 'notice'
 		}
 	}
-}
-
-function parseConfig(project: Project, sources: string[], compilerOptions: {}): ts.ParsedCommandLine {
-	const host: ts.ParseConfigHost = {
-		useCaseSensitiveFileNames: false,
-		readDirectory: (rootDir: string, extensions: ReadonlyArray<string>, excludes: ReadonlyArray<string> | undefined, includes: ReadonlyArray<string>, depth?: number): string[] => sources,
-		fileExists: (path: string): boolean => P.testFileExists(path),
-		readFile: (path: string): string | undefined => P.readFile(path),
-	}
-
-	return ts.parseJsonConfigFileContent({ include: sources, compilerOptions }, host, project.baseDirectoryPath)
-}
-
-function readModuleSourceChain(project: Project): ModuleSource {
-	let sourceText = project.sourceMap.sources().map(_ => _.content).join('\n')
-	const sourceMaps = [] as string[]
-
-	if (project.moduleSourcePath) {
-		P.writeFile(project.moduleSourcePath, sourceText)
-	}
-
-	return {
-		sourceText,
-		sourceMaps,
-	}
-}
-
-function generateModule(project: Project): ts.EmitResult {
-	const sourcePath = project.moduleSourcePath || project.definitionPath
-
-	const compilerOptions = Object.assign(
-		/* default compilerOptions */
-		{
-			target: 'esnext',
-			module: 'esnext',
-			moduleResolution: 'node',
-			declaration: true,
-			strict: true,
-			alwaysStrict: true,
-			esModuleInterop: true,
-		},
-
-		/* custom compilerOptions */
-		project.config.typescript.compilerOptions,
-	)
-
-	const parsed = parseConfig(project, [sourcePath], compilerOptions)
-
-	if (parsed.errors.length > 0) {
-		displayDiagnostics(project, parsed.errors)
-		// TODO: return
-	}
-
-	if (parsed.options.locale) {
-		ts.validateLocaleAndSetLanguage(parsed.options.locale, ts.sys, parsed.errors)
-	}
-
-	let declarationText = ''
-	let moduleText = ''
-	let sourceMapText = ''
-
-	const source = readModuleSourceChain(project)
-	const sourceFile: ts.SourceFile = ts.createSourceFile(sourcePath, source.sourceText, parsed.options.target!)
-	const compilerHost = ts.createCompilerHost(parsed.options)
-	const getSourceFileBase = compilerHost.getSourceFile
-
-	compilerHost.getSourceFile =
-		(fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
-			fileName === sourcePath
-				? sourceFile
-				: getSourceFileBase(fileName, languageVersion, onError, shouldCreateNewSourceFile)
-
-	compilerHost.writeFile = (fileName, text) => {
-		if (fileName.endsWith('.d.ts')) {
-			declarationText += text
-		}
-		else if (fileName.endsWith('.map')) {
-			sourceMapText = text;
-		}
-		else {
-			// Quick Fix: import 'xx' -> import 'xx.mjs'
-			const sourceDir = P.extractDirectoryPath(project.moduleEsmPath)
-			text = text.replace(/^\s*(import\s.+)(?:'(.*?)'|"(.*?)")/gm, ($0, $1, $2, $3) => {
-				const path = P.joinPath(sourceDir, ($2 || $3) + '.mjs')
-				return P.testFileExists(path) ? `${$1}'${$2 || $3}.mjs'` : $0
-			})
-
-			moduleText = text;
-		}
-	}
-
-	const program = ts.createProgram([sourcePath], parsed.options, compilerHost)
-
-	const emitResult = program.emit()
-
-	// const transpileResult = transpileCode(project)
-
-	emitResult.diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics)
-
-	if (emitResult.diagnostics.length == 0) {
-		P.writeFile(P.touchDirectories(project.typePath), declarationText)
-
-		P.writeFile(P.touchDirectories(project.moduleEsmPath), moduleText)
-
-		P.writeFile(P.touchDirectories(project.sourceMapPath), sourceMapText)
-	}
-
-	return emitResult
 }
 
 // function getNewLineCharacter(options: ts.CompilerOptions | ts.PrinterOptions): string {

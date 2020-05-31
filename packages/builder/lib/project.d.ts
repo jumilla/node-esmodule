@@ -1,5 +1,5 @@
 import { Config } from './config';
-import { SourceMap } from './sourcemap';
+import SourceMap from './sourcemap';
 declare const _default: {
     load: typeof load;
     build: typeof build;
@@ -12,10 +12,8 @@ export declare type Project = {
     definitionPath: string;
     codePaths: string[];
     moduleSourcePath?: string;
-    typePath: string;
-    moduleEsmPath: string;
-    sourceMapPath: string;
+    moduleName: string;
     sourceMap: SourceMap;
 };
 declare function load(configFilePath: string, baseDirectoryPath?: string): Project;
-declare function build(project: Project): void;
+declare function build(project: Project): Promise<void>;

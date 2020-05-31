@@ -2,6 +2,11 @@ export declare enum CompilerKind {
     TypeScript = "typescript",
     Babel = "babel"
 }
+export declare enum SourceMapKind {
+    None = "none",
+    File = "file",
+    Inline = "inline"
+}
 export declare type Config = {
     version: string;
     compiler: CompilerKind;
@@ -11,15 +16,13 @@ export declare type Config = {
     out: {
         source?: string;
         module: string;
+        sourceMap: SourceMapKind;
     };
     typescript: {
         compilerOptions: {};
     };
     babel: {};
 };
+export declare const FILENAME = "esmconfig.json";
 declare function parse(image: string): Config;
-declare const _default: {
-    FILENAME: string;
-    parse: typeof parse;
-};
-export default _default;
+export default parse;

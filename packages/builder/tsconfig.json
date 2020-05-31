@@ -1,8 +1,10 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es5",
-        "lib": ["es2015"],
+        "target": "es2017",
+        "lib": [
+            "es2015"
+        ],
         "declaration": true,
         "inlineSourceMap": true,
         "outDir": "./lib",
