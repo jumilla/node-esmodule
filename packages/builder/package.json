@@ -1,6 +1,6 @@
 {
   "name": "esmodule-builder",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "ECMAScript-Module (ES Module) builder.",
   "author": "Jumilla <fumio@jumilla.me>",
   "homepage": "https://github.com/spellu/esmodules#readme",
