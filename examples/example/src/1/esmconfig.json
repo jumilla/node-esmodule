@@ -10,5 +10,8 @@
         "directory": "../../lib",
         "name": "example-1",
         "sourceMap": "file"
+    },
+    "debug": {
+        "outputSource": "debug"
     }
 }

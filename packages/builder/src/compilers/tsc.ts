@@ -1,6 +1,6 @@
 
 import meta from '../meta'
-import { SourceMapKind } from '../config'
+import { Config, SourceMapKind } from '../config'
 import { Project } from '../project'
 import P from '../platform'
 import log from 'npmlog'
@@ -30,10 +30,6 @@ async function build(
 
 	const sourceText = project.sourceMap.sources().map(_ => _.content).join('\n')
 
-	// if (project.moduleSourcePath) {
-	// 	P.writeFile(project.moduleSourcePath, sourceText)
-	// }
-
 	const compilerOptions = Object.assign(
 		/* default compilerOptions */
 		{
@@ -51,6 +47,17 @@ async function build(
 		/* custom compilerOptions */
 		project.config.typescript.compilerOptions,
 	)
+
+	if (project.config.debug.outputSource) {
+		P.writeFile(
+			P.joinPath(project.baseDirectoryPath, project.config.debug.outputSource, 'module.ts'),
+			sourceText,
+		)
+		P.writeFile(
+			P.joinPath(project.baseDirectoryPath, project.config.debug.outputSource, 'tsconfig.json'),
+			createTSConfigImage(project.config, compilerOptions),
+		)
+	}
 
 	const parsed = parseConfig(project, [sourcePath], compilerOptions)
 
@@ -102,6 +109,19 @@ async function build(
 
 	const exitCode = errorOccurred ? 1 : 0
 	log.silly('tsc', `Process exiting with code '${exitCode}'.`)
+}
+
+function createTSConfigImage(
+	esmc: Config,
+	compilerOptions: {},
+): string {
+	const config = {
+		compilerOptions,
+		include: esmc.source.include,
+		exclude: esmc.source.exclude,
+	}
+
+	return JSON.stringify(config, null, '\t')
 }
 
 function parseConfig(
@@ -186,9 +206,9 @@ function writeFile(
 	extension: string,
 	text: string,
 ) {
-	const path = P.resolvePath(project.baseDirectoryPath, project.modulePathWithoutExtension + extension)
+	const path = P.resolvePath(project.modulePathWithoutExtension + extension)
 
-	P.writeFile(P.touchDirectories(path), text)
+	P.writeFile(path, text)
 
 	log.info(meta.program, `'${path}' generated.`)
 }

@@ -1,4 +1,3 @@
-// import * as json5 from 'json5'
 var test;
 (function (test) {
     test.version = '1.0.0';

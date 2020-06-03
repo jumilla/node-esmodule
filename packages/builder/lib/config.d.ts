@@ -21,6 +21,9 @@ export declare type Config = {
         name: string;
         sourceMap: SourceMapKind;
     };
+    debug: {
+        outputSource?: string;
+    };
     typescript: {
         compilerOptions: {};
     };

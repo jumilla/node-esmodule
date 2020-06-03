@@ -29,6 +29,9 @@ export type Config = {
 		name: string
 		sourceMap: SourceMapKind
 	}
+	debug: {
+		outputSource?: string
+	}
 	typescript: { compilerOptions: {} }
 	babel: {}
 }
@@ -48,6 +51,8 @@ const DEFAULT = {
 		directory: '.',
 		name: 'module',
 		sourceMap: SourceMapKind.None,
+	},
+	debug: {
 	},
 	typescript: {
 		compilerOptions: {
@@ -122,6 +127,7 @@ function parse(
 			return { directory: '', name: '', sourceMap: SourceMapKind.None }
 		}
 	})
+	const debug = choiseObject(DEFAULT.debug, data.debug)
 	const typescript = choiseObject(DEFAULT.typescript, data.typescript)
 	const babel = choiseObject(DEFAULT.babel, data.babel)
 
@@ -130,6 +136,7 @@ function parse(
 		compiler,
 		source,
 		module,
+		debug,
 		typescript,
 		babel,
 	}

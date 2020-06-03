@@ -75,7 +75,7 @@ function writeFile(
 	path: string,
 	content: string,
 ): void {
-	return fs.writeFileSync(path, content, { encoding: 'utf8' })
+	return fs.writeFileSync(touchDirectories(path), content, { encoding: 'utf8' })
 }
 
 function touchDirectories(
