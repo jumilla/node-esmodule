@@ -10,12 +10,15 @@ export declare enum SourceMapKind {
 export declare type Config = {
     version: string;
     compiler: CompilerKind;
-    source: string;
-    include: string[];
-    exclude: string[];
-    out: {
-        source?: string;
-        module: string;
+    source: {
+        directory: string;
+        entry: string;
+        include: string[];
+        exclude: string[];
+    };
+    module: {
+        directory: string;
+        name: string;
         sourceMap: SourceMapKind;
     };
     typescript: {

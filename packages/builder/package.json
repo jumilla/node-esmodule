@@ -3,7 +3,7 @@
   "version": "0.10.0",
   "description": "ECMAScript-Module (ES Module) builder.",
   "author": "Jumilla <fumio@jumilla.me>",
-  "homepage": "https://github.com/jumilla/node-esmodule#readme",
+  "homepage": "https://github.com/spellu/esmodules#readme",
   "license": "Apache-2.0",
   "bin": {
     "esmc": "bin/esmc.js"
@@ -19,10 +19,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jumilla/node-esmodule.git"
+    "url": "git+https://github.com/spellu/esmodules.git"
   },
   "bugs": {
-    "url": "https://github.com/jumilla/node-esmodule/issues"
+    "url": "https://github.com/spellu/esmodules/issues"
   },
   "dependencies": {
     "@types/glob": "^7.1.1",

@@ -3,6 +3,7 @@ declare const _default: {
     extractFileTitlePath: typeof extractFileTitlePath;
     joinPath: typeof joinPath;
     resolvePath: typeof resolvePath;
+    relativePath: typeof relativePath;
     normalizePath: typeof normalizePath;
     testFileExists: typeof testFileExists;
     readFile: typeof readFile;
@@ -12,8 +13,9 @@ declare const _default: {
 export default _default;
 declare function extractDirectoryPath(path: string): string;
 declare function extractFileTitlePath(path: string, extension?: string): string;
-declare function joinPath(path1: string, path2: string): string;
-declare function resolvePath(baseDirectoryPath: string, filename: string): string;
+declare function joinPath(...paths: string[]): string;
+declare function resolvePath(...paths: string[]): string;
+declare function relativePath(baseDirectoryPath: string, path: string): string;
 declare function normalizePath(path: string): string;
 declare function testFileExists(path: string): boolean;
 declare function readFile(path: string): string;

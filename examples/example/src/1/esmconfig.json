@@ -1,13 +1,14 @@
 {
     "version": "1.0",
     "compiler": "typescript",
-    "source": "module.ts",
-    "include": [
-        "*"
-    ],
-    "exclude": [],
-    "out": {
-        "module": "../../lib/example-1",
+    "source": {
+        "entry": "module.ts",
+        "include": ["*"],
+        "exclude": []
+    },
+    "module": {
+        "directory": "../../lib",
+        "name": "example-1",
         "sourceMap": "file"
     }
 }

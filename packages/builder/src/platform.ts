@@ -7,6 +7,7 @@ export default {
 	extractFileTitlePath,
 	joinPath,
 	resolvePath,
+	relativePath,
 	normalizePath,
 	testFileExists,
 	readFile,
@@ -28,17 +29,22 @@ function extractFileTitlePath(
 }
 
 function joinPath(
-	path1: string,
-	path2: string,
+	...paths: string[]
 ): string {
-	return fspath.join(path1, path2)
+	return fspath.join(...paths)
 }
 
 function resolvePath(
-	baseDirectoryPath: string,
-	filename: string,
+	...paths: string[]
 ): string {
-	return fspath.normalize(fspath.join(baseDirectoryPath, filename))
+	return fspath.normalize(fspath.join(...paths))
+}
+
+function relativePath(
+	baseDirectoryPath: string,
+	path: string,
+): string {
+	return fspath.relative(baseDirectoryPath, path)
 }
 
 function normalizePath(

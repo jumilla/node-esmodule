@@ -1,0 +1,20 @@
+{
+  "private": true,
+  "name": "esmodule-example-1-2",
+  "version": "0.10.0",
+  "description": "ES Modules example",
+  "author": "Fumio Furukawa <fumio@jumilla.me>",
+  "homepage": "https://github.com/spellu/esmodules#readme",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spellu/esmodules.git"
+  },
+  "devDependencies": {
+    "esmodule-builder": "^0.10.0"
+  },
+  "scripts": {
+    "build": "yarn run esmc",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  }
+}

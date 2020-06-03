@@ -9,10 +9,10 @@ export declare type Project = {
     baseDirectoryPath: string;
     configFilePath?: string;
     config: Config;
-    definitionPath: string;
+    entryPath: string;
     codePaths: string[];
-    moduleSourcePath?: string;
-    moduleName: string;
+    moduleDirectoryPath: string;
+    modulePathWithoutExtension: string;
     sourceMap: SourceMap;
 };
 declare function load(configFilePath: string, baseDirectoryPath?: string): Project;

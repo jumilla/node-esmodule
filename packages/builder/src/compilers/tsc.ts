@@ -26,13 +26,13 @@ async function build(
 ) {
 	ts = await import('typescript')
 
-	const sourcePath = project.moduleName + '.ts'
+	const sourcePath = project.modulePathWithoutExtension + '.ts'
 
 	const sourceText = project.sourceMap.sources().map(_ => _.content).join('\n')
 
-	if (project.moduleSourcePath) {
-		P.writeFile(project.moduleSourcePath, sourceText)
-	}
+	// if (project.moduleSourcePath) {
+	// 	P.writeFile(project.moduleSourcePath, sourceText)
+	// }
 
 	const compilerOptions = Object.assign(
 		/* default compilerOptions */
@@ -44,8 +44,8 @@ async function build(
 			strict: true,
 			alwaysStrict: true,
 			esModuleInterop: true,
-			declarationMap: project.config.out.sourceMap != SourceMapKind.None,
-			sourceMap: project.config.out.sourceMap != SourceMapKind.None,
+			declarationMap: project.config.module.sourceMap != SourceMapKind.None,
+			sourceMap: project.config.module.sourceMap != SourceMapKind.None,
 		},
 
 		/* custom compilerOptions */
@@ -76,19 +76,21 @@ async function build(
 	const errorOccurred = result.diagnostics.length > 0
 
 	if (result.diagnostics.length == 0) {
+		const moduleName = P.extractFileTitlePath(project.modulePathWithoutExtension)
+
 		if (result.moduleMap) {
-			result.module += `//# sourceMappingURL=${project.moduleName}.mjs.map`
+			result.module += `//# sourceMappingURL=${moduleName}.mjs.map`
 		}
 		writeFile(project, '.mjs', result.module)
 
 		if (result.declarationMap) {
-			result.declaration += `//# sourceMappingURL=${project.moduleName}.d.ts.map`
+			result.declaration += `//# sourceMappingURL=${moduleName}.d.ts.map`
 		}
 		writeFile(project, '.d.ts', result.declaration)
 
 		if (result.moduleMap) {
 			const map = await project.sourceMap.originalSourceMap(JSON.parse(result.moduleMap))
-			map.file = project.moduleName + '.mjs'
+			map.file = moduleName + '.mjs'
 			writeFile(project, '.mjs.map', JSON.stringify(map))
 		}
 
@@ -140,7 +142,7 @@ async function transpileModule(
 	compilerHost.writeFile = async (fileName, text) => {
 		if (fileName.endsWith('.js')) {
 			// Quick Fix: import 'xx' -> import 'xx.mjs'
-			const sourceDir = P.extractDirectoryPath(project.config.out.module)
+			const sourceDir = project.moduleDirectoryPath
 
 			text = text.replace(/^\s*(import\s.+)(?:'(.*?)'|"(.*?)")/gm, ($0, $1, $2, $3) => {
 				const path = P.joinPath(sourceDir, ($2 || $3) + '.mjs')
@@ -184,7 +186,7 @@ function writeFile(
 	extension: string,
 	text: string,
 ) {
-	const path = P.resolvePath(project.baseDirectoryPath, project.config.out.module + extension)
+	const path = P.resolvePath(project.baseDirectoryPath, project.modulePathWithoutExtension + extension)
 
 	P.writeFile(P.touchDirectories(path), text)
 
@@ -205,10 +207,19 @@ function displayDiagnostics(
 				diagnostic.start!
 			)
 
-			const { path, line } = project.sourceMap.getLocation(lineOfModule)
+			if (diagnostic.file.fileName == (project.modulePathWithoutExtension + '.ts')) {
+				const { path, line } = project.sourceMap.getLocation(lineOfModule)
 
-			const location = `${path} (${line + 1},${column + 1})`
-			log.log(loglevel, 'tsc', `${location}: ${message}`)
+				const location = `${path} (${line + 1},${column + 1})`
+				log.log(loglevel, 'tsc', `${location}: ${message}`)
+			}
+			else {
+				const path = P.relativePath(project.baseDirectoryPath, diagnostic.file.fileName)
+				const line = lineOfModule
+
+				const location = `${path} (${line + 1},${column + 1})`
+				log.log(loglevel, 'tsc', `${location}: ${message}`)
+			}
 		}
 		else {
 			log.log(loglevel, 'tsc', message)

@@ -1,5 +1,6 @@
 
 import json5 from 'json5'
+import P from './platform'
 
 
 
@@ -17,10 +18,17 @@ export enum SourceMapKind {
 export type Config = {
 	version: string
 	compiler: CompilerKind
-	source: string
-	include: string[]
-	exclude: string[]
-	out: { source?: string, module: string, sourceMap: SourceMapKind }
+	source: {
+		directory: string
+		entry: string
+		include: string[]
+		exclude: string[]
+	}
+	module: {
+		directory: string
+		name: string
+		sourceMap: SourceMapKind
+	}
 	typescript: { compilerOptions: {} }
 	babel: {}
 }
@@ -30,10 +38,17 @@ export const FILENAME = 'esmconfig.json'
 const DEFAULT = {
 	version: '1.0',
 	compiler: CompilerKind.TypeScript,
-	source: 'module.ts',
-	include: ['*'],
-	exclude: [],
-	out: { module: 'module.js', sourceMap: SourceMapKind.None },
+	source: {
+		directory: '.',
+		entry: 'module.ts',
+		include: ['**/*.ts'],
+		exclude: [],
+	},
+	module: {
+		directory: '.',
+		name: 'module',
+		sourceMap: SourceMapKind.None,
+	},
 	typescript: {
 		compilerOptions: {
 			locale: process.env.LANG!.substring(0, 2),
@@ -63,36 +78,48 @@ function parse(
 		if (value == 'babel') return CompilerKind.Babel
 		return CompilerKind.TypeScript
 	})
-	const source = choiseValue(DEFAULT.source, data.source)
-	const include = choiseValue(DEFAULT.include, typeof data.include === 'string' ? [data.include] : data.include)
-	const exclude = choiseValue(DEFAULT.exclude, typeof data.exclude === 'string' ? [data.exclude] : data.exclude)
-	const out = choiseValue(DEFAULT.out, data.out, value => {
+	const source = choiseValue(DEFAULT.source, data.source, value => {
+		// TODO: check value.entry
+		const include = choiseValue(DEFAULT.source.include, typeof value.include === 'string' ? [value.include] : value.include)
+		const exclude = choiseValue(DEFAULT.source.exclude, typeof value.exclude === 'string' ? [value.exclude] : value.exclude)
+		return {
+			directory: value.directory || DEFAULT.source.directory,
+			entry: value.entry,
+			include,
+			exclude,
+		}
+	})
+	const module = choiseValue(DEFAULT.module, data.module, value => {
 		if (typeof value === 'string') {
-			return { module: value, sourceMap: SourceMapKind.None }
+			return {
+				directory: P.extractDirectoryPath(value),
+				name: P.extractFileTitlePath(value),
+				sourceMap: SourceMapKind.None,
+			}
 		}
 		else if (typeof value === 'object') {
-			const sourceMap = choiseValue(DEFAULT.out.sourceMap, value.sourceMap, (value: string) => {
+			// TODO: check value.name
+			const sourceMap = choiseValue(DEFAULT.module.sourceMap, value.sourceMap, (value: string) => {
 				const lowerValue = value.toLowerCase()
 				if (value == 'file') return SourceMapKind.File
 				if (value == 'inline') return SourceMapKind.Inline
 				return SourceMapKind.None
 			})
-			// TODO: check
 			return {
-				source: value.source,
-				module: value.module || '',
+				directory: value.directory || DEFAULT.module.directory,
+				name: value.name,
 				sourceMap: sourceMap,
 			}
 		}
 		else if (typeof value === 'undefined') {
 			// TODO Error handling
-			console.log('Parameter "out" must need.')
-			return { module: '', sourceMap: SourceMapKind.None }
+			console.log('Parameter "module" must need.')
+			return { directory: '', name: '', sourceMap: SourceMapKind.None }
 		}
 		else {
 			// TODO Error handling
-			console.log('Parameter "out" must need.')
-			return { module: '', sourceMap: SourceMapKind.None }
+			console.log('Parameter "module" must need.')
+			return { directory: '', name: '', sourceMap: SourceMapKind.None }
 		}
 	})
 	const typescript = choiseObject(DEFAULT.typescript, data.typescript)
@@ -102,9 +129,7 @@ function parse(
 		version,
 		compiler,
 		source,
-		include,
-		exclude,
-		out,
+		module,
 		typescript,
 		babel,
 	}

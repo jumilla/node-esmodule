@@ -15,4 +15,4 @@ declare namespace test {
 }
 export default test;
 export { test };
-//# sourceMappingURL=module.d.ts.map
+//# sourceMappingURL=example-1.d.ts.map

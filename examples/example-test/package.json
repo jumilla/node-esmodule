@@ -3,7 +3,7 @@
   "name": "esmodule-example-test",
   "description": "> TODO: description",
   "author": "Fumio Furukawa <fumio@jumilla.me>",
-  "homepage": "https://github.com/jumilla/node-esmodule#readme",
+  "homepage": "https://github.com/spellu/esmodules#readme",
   "license": "Apache-2.0",
   "directories": {
     "lib": "lib",
