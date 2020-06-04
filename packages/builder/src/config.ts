@@ -84,6 +84,14 @@ function parse(
 		return CompilerKind.TypeScript
 	})
 	const source = choiseValue(DEFAULT.source, data.source, value => {
+		if (typeof value === 'string') {
+			return {
+				directory: '.',
+				entry: value,
+				include: ['**/*'],
+				exclude: [],
+			}
+		}
 		// TODO: check value.entry
 		const include = choiseValue(DEFAULT.source.include, typeof value.include === 'string' ? [value.include] : value.include)
 		const exclude = choiseValue(DEFAULT.source.exclude, typeof value.exclude === 'string' ? [value.exclude] : value.exclude)

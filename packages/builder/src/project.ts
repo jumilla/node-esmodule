@@ -36,7 +36,7 @@ function load(
 
 	const codePaths = expandFilePatterns(baseDirectoryPath, config)
 
-	const sourceMap = makeSourceMap(entryPath, codePaths)
+	const sourceMap = createSourceMap(entryPath, codePaths)
 
 	return {
 		baseDirectoryPath,
@@ -87,7 +87,7 @@ function expandFilePatterns(directoryPath: string, config: Config): string[] {
 	return result
 }
 
-function makeSourceMap(
+function createSourceMap(
 	entryPath: string,
 	codePaths: string[],
 ): SourceMap {
@@ -95,7 +95,7 @@ function makeSourceMap(
 
 	let afterPartLineIndex = 0
 
-	const lines = P.readFile(entryPath).split(/\r\n|\n/)
+	const lines = readFile(entryPath).split(/\r\n|\n/)
 
 	for (let index = 0; index < lines.length; ++index) {
 		const line = lines[index]
@@ -104,15 +104,22 @@ function makeSourceMap(
 
 		if (match) {
 			// 1. before part
-			sourceMap.addSource(entryPath, lines.slice(0, index).join('\n'), 0, index)
+			sourceMap.addSource(
+				entryPath,
+				lines.slice(0, index).join('\n') + '\n',
+				1,
+				index,
+			)
 
 			afterPartLineIndex = index + 1
 
 			// 2. source part
 			for (const path of codePaths) {
-				const lines = P.readFile(path).split(/\r\n|\n/)
+				const content = readFile(path)
 
-				sourceMap.addSource(path, lines.join('\n'), 0, lines.length)
+				const count = content.split(/\r\n|\n/).length
+
+				sourceMap.addSource(path, content, 1, count - 1)
 			}
 
 			break
@@ -120,9 +127,22 @@ function makeSourceMap(
 	}
 
 	// 3. after part
-	sourceMap.addSource(entryPath, lines.slice(afterPartLineIndex).join('\n'), afterPartLineIndex, lines.length - afterPartLineIndex)
+	sourceMap.addSource(
+		entryPath,
+		lines.slice(afterPartLineIndex).join('\n') + '\n',
+		1 + afterPartLineIndex,
+		lines.length - afterPartLineIndex,
+	)
 
 	return sourceMap
+}
+
+function readFile(
+	path: string,
+): string {
+	const content = P.readFile(path)
+
+	return content.match(/[\n]$/g) ? content : content + '\n'
 }
 
 async function build(

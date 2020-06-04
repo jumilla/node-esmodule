@@ -3,6 +3,7 @@ var test;
     test.version = '1.0.0';
     // const bbb = json5
 })(test || (test = {}));
+//-
 var abc = 10;
 (function (test) {
     function a() {
@@ -11,10 +12,10 @@ var abc = 10;
     test.a = a;
 })(test || (test = {}));
 (function (test) {
-    function ee() {
+    function a_2() {
         return test.a() + test.b() * 2; //+ keyof()
     }
-    test.ee = ee;
+    test.a_2 = a_2;
 })(test || (test = {}));
 (function (test) {
     function b() {
@@ -28,6 +29,7 @@ var abc = 10;
     }
     test.z = z;
 })(test || (test = {}));
+//-
 export default test;
 export { test };
 //# sourceMappingURL=example-1.mjs.map

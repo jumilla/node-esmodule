@@ -32,10 +32,15 @@ export class SourceMap {
 		return this._sources
 	}
 
+	wholeContent(
+	): string {
+		return this._sources.map(_ => _.content).join('')
+	}
+
 	getLocation(
 		wholeLine: number,
 	): { path: string, line: number } {
-		let remain = wholeLine
+		let remain = wholeLine - 1
 
 		for (const source of this._sources) {
 			if (remain >= source.lineCount) {
@@ -49,7 +54,7 @@ export class SourceMap {
 			}
 		}
 
-		throw new Error('wholeLineNo is out of range.')
+		throw new Error('"wholeLineNo" is out of range.')
 	}
 
 	async originalSourceMap(
@@ -63,10 +68,16 @@ export class SourceMap {
 		})
 
 		consumer.eachMapping(record => {
-			const { path, line } = this.getLocation(record.originalLine)
+			let { path, line } = this.getLocation(record.originalLine)
 			const column = record.originalColumn
 
-			// console.log(path, line, column)
+			console.log(record.originalLine, path, line, column)
+
+			if (line == 0) {
+				for (const s of this._sources) {
+					console.log(s.path, s.lineStart, s.lineCount)
+				}
+			}
 
 			generator.addMapping({
 				generated: { line: record.generatedLine, column: record.generatedColumn },

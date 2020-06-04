@@ -9,8 +9,7 @@ namespace test {
 
 
 namespace test {
-	export function ee() {
+	export function a_2() {
 		return a() + b() * 2 //+ keyof()
 	}
 }
-

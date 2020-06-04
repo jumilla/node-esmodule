@@ -12,6 +12,18 @@ let ts: typeof TS
 
 
 
+const defaultCompilerOptions = {
+	target: 'esnext',
+	//lib: ['esnext'],
+	module: 'esnext',
+	moduleResolution: 'node',
+	esModuleInterop: true,
+	strict: true,
+	alwaysStrict: true,
+	declaration: true,
+}
+
+
 type Output = {
 	module: string
 	moduleMap?: string
@@ -28,20 +40,16 @@ async function build(
 
 	const sourcePath = project.modulePathWithoutExtension + '.ts'
 
-	const sourceText = project.sourceMap.sources().map(_ => _.content).join('\n')
+	const sourceText = project.sourceMap.wholeContent()
 
 	const compilerOptions = Object.assign(
 		/* default compilerOptions */
+		defaultCompilerOptions,
+
+		/* optional compilerOptions */
 		{
-			target: 'esnext',
-			module: 'esnext',
-			moduleResolution: 'node',
-			declaration: true,
-			strict: true,
-			alwaysStrict: true,
-			esModuleInterop: true,
-			declarationMap: project.config.module.sourceMap != SourceMapKind.None,
 			sourceMap: project.config.module.sourceMap != SourceMapKind.None,
+			declarationMap: project.config.module.sourceMap != SourceMapKind.None,
 		},
 
 		/* custom compilerOptions */

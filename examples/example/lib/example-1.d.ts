@@ -5,7 +5,7 @@ declare namespace test {
     function a(): number;
 }
 declare namespace test {
-    function ee(): number;
+    function a_2(): number;
 }
 declare namespace test {
     function b(): number;
