@@ -1,14 +1,14 @@
 export interface Source {
-    content: string;
     path: string;
-    lineStart: number;
+    lines: string[];
+    lineStartNo: number;
     lineCount: number;
 }
 export declare class SourceMap {
-    addSource(path: string, content: string, lineStart?: number, lineCount?: number): void;
+    addSource(path: string, lines: string[], lineStartNo?: number): void;
     sources(): Source[];
     wholeContent(): string;
-    getLocation(wholeLine: number): {
+    getLocation(wholeLineNo: number): {
         path: string;
         line: number;
     };

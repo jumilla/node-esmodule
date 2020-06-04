@@ -95,7 +95,7 @@ function createSourceMap(
 
 	let afterPartLineIndex = 0
 
-	const lines = readFile(entryPath).split(/\r\n|\n/)
+	const lines = readFile(entryPath)
 
 	for (let index = 0; index < lines.length; ++index) {
 		const line = lines[index]
@@ -106,20 +106,23 @@ function createSourceMap(
 			// 1. before part
 			sourceMap.addSource(
 				entryPath,
-				lines.slice(0, index).join('\n') + '\n',
+				lines.slice(0, index),
 				1,
-				index,
 			)
 
 			afterPartLineIndex = index + 1
 
 			// 2. source part
 			for (const path of codePaths) {
-				const content = readFile(path)
+				const lines = readFile(path)
 
-				const count = content.split(/\r\n|\n/).length
+				const count = lines.length
 
-				sourceMap.addSource(path, content, 1, count - 1)
+				sourceMap.addSource(
+					path,
+					lines,
+					1,
+				)
 			}
 
 			break
@@ -129,9 +132,8 @@ function createSourceMap(
 	// 3. after part
 	sourceMap.addSource(
 		entryPath,
-		lines.slice(afterPartLineIndex).join('\n') + '\n',
+		lines.slice(afterPartLineIndex),
 		1 + afterPartLineIndex,
-		lines.length - afterPartLineIndex,
 	)
 
 	return sourceMap
@@ -139,10 +141,11 @@ function createSourceMap(
 
 function readFile(
 	path: string,
-): string {
+): string[] {
 	const content = P.readFile(path)
 
-	return content.match(/[\n]$/g) ? content : content + '\n'
+	return (content.match(/[\n]$/g) ? content.substring(0, content.length - 1) : content)
+		.split(/\r\n|\n/)
 }
 
 async function build(

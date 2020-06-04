@@ -23,7 +23,6 @@ namespace test {
 		return a() + b() * 2 //+ keyof()
 	}
 }
-
 namespace test {
     export function b() {
         return 55 + abc
@@ -40,4 +39,3 @@ namespace test {
 export default test
 
 export { test }
-

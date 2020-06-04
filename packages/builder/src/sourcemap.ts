@@ -1,27 +1,26 @@
 
-import { SourceMapConsumer, Mapping, SourceMapGenerator, RawSourceMap } from 'source-map'
+import { SourceMapConsumer, SourceMapGenerator, RawSourceMap } from 'source-map'
 
 
 
 export interface Source {
-	content: string
 	path: string
-	lineStart: number
+	lines: string[]
+	lineStartNo: number
 	lineCount: number
 }
 
 export class SourceMap {
 	addSource(
 		path: string,
-		content: string,
-		lineStart: number = 0,
-		lineCount: number = calcLineCount(content),
+		lines: string[],
+		lineStartNo: number = 1,
 	): void {
 		const source = {
 			path,
-			content,
-			lineStart,
-			lineCount,
+			lines,
+			lineStartNo,
+			lineCount: lines.length,
 		}
 
 		this._sources.push(source)
@@ -34,13 +33,13 @@ export class SourceMap {
 
 	wholeContent(
 	): string {
-		return this._sources.map(_ => _.content).join('')
+		return this._sources.map(_ => _.lines.join('\n') + '\n').join('')
 	}
 
 	getLocation(
-		wholeLine: number,
+		wholeLineNo: number,
 	): { path: string, line: number } {
-		let remain = wholeLine - 1
+		let remain = wholeLineNo - 1
 
 		for (const source of this._sources) {
 			if (remain >= source.lineCount) {
@@ -50,7 +49,7 @@ export class SourceMap {
 
 			return {
 				path: source.path,
-				line: source.lineStart + remain,
+				line: source.lineStartNo + remain,
 			}
 		}
 
@@ -73,12 +72,6 @@ export class SourceMap {
 
 			console.log(record.originalLine, path, line, column)
 
-			if (line == 0) {
-				for (const s of this._sources) {
-					console.log(s.path, s.lineStart, s.lineCount)
-				}
-			}
-
 			generator.addMapping({
 				generated: { line: record.generatedLine, column: record.generatedColumn },
 				original: { line: line, column: column },
@@ -91,20 +84,10 @@ export class SourceMap {
 
 	toString(
 	): string {
-		return this._sources.map(_ => `${_.path}:${_.lineStart}:${_.lineCount}`).join('\n')
+		return this._sources.map(_ => `${_.path}:${_.lineStartNo}:${_.lineCount}`).join('\n')
 	}
 
 	private _sources: Source[] = []
-}
-
-function calcLineCount(
-	content: string,
-): number {
-	let count = 0
-
-	count = content.split(/\r\n|\n/).length
-
-	return count
 }
 
 export default SourceMap
