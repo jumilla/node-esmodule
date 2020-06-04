@@ -70,7 +70,7 @@ export class SourceMap {
 			let { path, line } = this.getLocation(record.originalLine)
 			const column = record.originalColumn
 
-			console.log(record.originalLine, path, line, column)
+			// console.log(record.originalLine, path, line, column)
 
 			generator.addMapping({
 				generated: { line: record.generatedLine, column: record.generatedColumn },
