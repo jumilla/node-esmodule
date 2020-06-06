@@ -3,3 +3,4 @@ declare namespace test {
 }
 export declare const NAME = "test";
 export default test;
+//# sourceMappingURL=example.d.ts.map

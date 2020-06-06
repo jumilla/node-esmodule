@@ -1,5 +1,5 @@
 
-import calc from './calc1'
+import calc from './calc'
 
 export default calc.add
 

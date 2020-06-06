@@ -4,3 +4,4 @@ var test;
 })(test || (test = {}));
 export const NAME = 'test';
 export default test;
+//# sourceMappingURL=example.mjs.map

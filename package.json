@@ -6,10 +6,12 @@
     ],
     "name": "node-esmodule",
     "devDependencies": {
+        "jest": "^26.0.0",
         "lerna": "^3.22.0",
         "typescript": "^3.9.3"
     },
     "scripts": {
-        "build": "yarn run tsc -p packages/builder/"
+        "build": "yarn run tsc -p packages/builder/",
+        "test": "jest"
     }
 }

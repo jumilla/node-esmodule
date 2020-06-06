@@ -3,7 +3,7 @@
     "compiler": "typescript",
     "source": "./module.ts",
     "module": {
-        "directory": "module",
+        "directory": "modules",
         "name": "example",
         "sourceMap": "file"
     }

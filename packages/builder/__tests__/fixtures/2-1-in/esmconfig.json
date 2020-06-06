@@ -5,7 +5,7 @@
     "include": ["*"],
     "exclude": [],
     "module": {
-        "directory": "module",
+        "directory": "modules",
         "name": "example",
         "sourceMap": "none"
     }

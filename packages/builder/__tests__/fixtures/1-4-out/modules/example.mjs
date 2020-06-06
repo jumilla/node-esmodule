@@ -1,3 +1,3 @@
-import calc from './calc.mjs';
+import calc from './calc';
 export default calc.add;
 //# sourceMappingURL=example.mjs.map
