@@ -36,7 +36,12 @@ type TranspileResult = Output & TS.EmitResult
 async function build(
 	project: Project,
 ) {
-	ts = await import('typescript')
+	try {
+		ts = await import('typescript')
+	}
+	catch (error) {
+		throw new Error('Need installing "typescript".')
+	}
 
 	const sourcePath = project.modulePathWithoutExtension + '.ts'
 

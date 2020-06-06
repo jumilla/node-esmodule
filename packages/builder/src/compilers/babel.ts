@@ -1,22 +1,28 @@
 
-// "@babel/core": "^7.1.0",
-// "@babel/preset-env": "^7.1.0"
-// "@babel/plugin-transform-modules-commonjs": "^7.1.0",
-
 import { Project } from '../project'
 import P from '../platform'
+import type BABEL from '@babel/core'
+
+
+
+let babel: typeof BABEL
 
 
 
 async function build(project: Project) {
-	const babel = require('@babel/core')
-	// const result = babel.transformFileSync(project.moduleEsmPath, {
-	// 	presets: [[require('@babel/preset-env'), { targets: { 'node': '6.0' } }]],
-	// 	plugins: [],
-	// })
+	try {
+		babel = await import('@babel/core')
+		// const result = babel.transformFileSync(project.moduleEsmPath, {
+		// 	presets: [[require('@babel/preset-env'), { targets: { 'node': '6.0' } }]],
+		// 	plugins: [],
+		// })
 
-	// P.writeFile(project.moduleCjsPath, result.code)
-	// console.log(result)
+		// P.writeFile(project.moduleCjsPath, result.code)
+		// console.log(result)
+	}
+	catch (error) {
+		throw new Error('Need installing "@babel/core".')
+	}
 }
 
 

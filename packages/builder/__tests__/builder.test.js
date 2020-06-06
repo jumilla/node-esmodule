@@ -7,11 +7,12 @@ const tmp = require('tmp')
 
 
 describe('Fixtures', () => {
-    test('1-1', testFixture('1-1'))
-    test('1-2', testFixture('1-2'))
-    test('1-3', testFixture('1-3'))
-    test('1-4', testFixture('1-4'))
-    test('2-1', testFixture('2-1'))
+    // test('1-1', testFixture('1-1'))
+    // test('1-2', testFixture('1-2'))
+    // test('1-3', testFixture('1-3'))
+    // test('1-4', testFixture('1-4'))
+    // test('2-1', testFixture('2-1'))
+    test('9-1', testFixture('9-1'))
 })
 
 function testFixture(id) {
