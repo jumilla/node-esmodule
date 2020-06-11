@@ -1,0 +1,6 @@
+declare namespace test {
+    const version = "1.0.0";
+}
+export declare const NAME = "test";
+export default test;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIl9fdG1wX18vc291cmNlcy8wMC1tb2R1bGUudHMiLCJfX3RtcF9fL3NvdXJjZXMvMDEtbmFtZS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFDQSxrQkFBVSxJQUFJLENBQUM7SUFDUCxNQUFNLE9BQU8sVUFBVSxDQUFBO0NBQzlCO0FDSEQsZUFBTyxNQUFNLElBQUksU0FBUyxDQUFBO0FETzFCLGVBQWUsSUFBSSxDQUFBIiwiZmlsZSI6ImV4YW1wbGUuZC50cyIsInNvdXJjZVJvb3QiOiIifQ==

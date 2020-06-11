@@ -57,9 +57,9 @@ export class SourceMap {
 	}
 
 	async originalSourceMap(
-		wholeSourceMap: { [name: string]: any },
-	): Promise<{ [name: string]: any }> {
-		const consumer = await new SourceMapConsumer(wholeSourceMap as RawSourceMap)
+		wholeSourceMap: RawSourceMap,
+	): Promise<RawSourceMap> {
+		const consumer = await new SourceMapConsumer(wholeSourceMap)
 
 		const generator = new SourceMapGenerator({
 			file: consumer.file,
@@ -80,6 +80,16 @@ export class SourceMap {
 		})
 
 		return generator.toJSON()
+	}
+
+	createFileComment(sourceMap: RawSourceMap): string {
+		return `//# sourceMappingURL=${sourceMap.file}.map`
+	}
+
+	createInlineComment(sourceMap: RawSourceMap): string {
+		const image = Buffer.from(JSON.stringify(sourceMap), 'ascii').toString('base64')
+
+		return `//# sourceMappingURL=data:application/json;base64,${image}`
 	}
 
 	toString(

@@ -24,6 +24,7 @@ const defaultCompilerOptions = {
 }
 
 
+
 type Output = {
 	module: string
 	moduleMap?: string
@@ -36,30 +37,32 @@ type TranspileResult = Output & TS.EmitResult
 async function build(
 	project: Project,
 ) {
-	try {
-		ts = await import('typescript')
-	}
-	catch (error) {
-		throw new Error('Need installing "typescript".')
+	if (!ts) {
+		try {
+			ts = await import('typescript')
+		}
+		catch (error) {
+			throw new Error('Need installing "typescript".')
+		}
 	}
 
 	const sourcePath = project.modulePathWithoutExtension + '.ts'
 
 	const sourceText = project.sourceMap.wholeContent()
 
-	const compilerOptions = Object.assign(
+	const compilerOptions = {
 		/* default compilerOptions */
-		defaultCompilerOptions,
+		...defaultCompilerOptions,
 
-		/* optional compilerOptions */
-		{
+		/* project compilerOptions */
+		...{
 			sourceMap: project.config.module.sourceMap != SourceMapKind.None,
 			declarationMap: project.config.module.sourceMap != SourceMapKind.None,
 		},
 
 		/* custom compilerOptions */
-		project.config.typescript.compilerOptions,
-	)
+		...project.config.typescript.compilerOptions,
+	}
 
 	if (project.config.debug.outputSource) {
 		P.writeFile(
@@ -96,32 +99,47 @@ async function build(
 	const errorOccurred = result.diagnostics.length > 0
 
 	if (result.diagnostics.length == 0) {
-		const moduleName = P.extractFileTitlePath(project.modulePathWithoutExtension)
-
-		if (result.moduleMap) {
-			result.module += `//# sourceMappingURL=${moduleName}.mjs.map`
+		if (project.config.module.sourceMap == SourceMapKind.None) {
+			writeFile(project, '.mjs', result.module)
+			writeFile(project, '.d.ts', result.declaration)
 		}
-		writeFile(project, '.mjs', result.module)
+		else {
+			const moduleMap = await project.sourceMap.originalSourceMap(JSON.parse(result.moduleMap!))
 
-		if (result.declarationMap) {
-			result.declaration += `//# sourceMappingURL=${moduleName}.d.ts.map`
-		}
-		writeFile(project, '.d.ts', result.declaration)
+			moduleMap.file = moduleMap.file.replace(/\.js$/, '.mjs')
 
-		if (result.moduleMap) {
-			const map = await project.sourceMap.originalSourceMap(JSON.parse(result.moduleMap))
-			map.file = moduleName + '.mjs'
-			writeFile(project, '.mjs.map', JSON.stringify(map))
-		}
+			switch (project.config.module.sourceMap) {
+				case SourceMapKind.File:
+					result.module += project.sourceMap.createFileComment(moduleMap)
+					break
+				case SourceMapKind.Inline:
+					result.module += project.sourceMap.createInlineComment(moduleMap)
+					break
+			}
 
-		if (result.declarationMap) {
-			const map = await project.sourceMap.originalSourceMap(JSON.parse(result.declarationMap))
-			writeFile(project, '.d.ts.map', JSON.stringify(map))
+			const declarationMap = await project.sourceMap.originalSourceMap(JSON.parse(result.declarationMap!))
+
+			switch (project.config.module.sourceMap) {
+				case SourceMapKind.File:
+					result.declaration += project.sourceMap.createFileComment(declarationMap)
+					break
+				case SourceMapKind.Inline:
+					result.declaration += project.sourceMap.createInlineComment(declarationMap)
+					break
+			}
+
+			writeFile(project, '.mjs', result.module)
+			writeFile(project, '.d.ts', result.declaration)
+
+			if (project.config.module.sourceMap == SourceMapKind.File) {
+				writeFile(project, '.mjs.map', JSON.stringify(moduleMap))
+				writeFile(project, '.d.ts.map', JSON.stringify(declarationMap))
+			}
+
+			const exitCode = errorOccurred ? 1 : 0
+			log.silly('tsc', `Process exiting with code '${exitCode}'.`)
 		}
 	}
-
-	const exitCode = errorOccurred ? 1 : 0
-	log.silly('tsc', `Process exiting with code '${exitCode}'.`)
 }
 
 function createTSConfigImage(

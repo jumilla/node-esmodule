@@ -1,3 +1,4 @@
+import { RawSourceMap } from 'source-map';
 export interface Source {
     path: string;
     lines: string[];
@@ -12,11 +13,9 @@ export declare class SourceMap {
         path: string;
         line: number;
     };
-    originalSourceMap(wholeSourceMap: {
-        [name: string]: any;
-    }): Promise<{
-        [name: string]: any;
-    }>;
+    originalSourceMap(wholeSourceMap: RawSourceMap): Promise<RawSourceMap>;
+    createFileComment(sourceMap: RawSourceMap): string;
+    createInlineComment(sourceMap: RawSourceMap): string;
     toString(): string;
     private _sources;
 }
