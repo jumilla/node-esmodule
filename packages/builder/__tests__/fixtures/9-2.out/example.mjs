@@ -8,3 +8,4 @@ var NAME = 'test';
 exports.NAME = NAME;
 var _default = test;
 exports["default"] = _default;
+//# sourceMappingURL=example.js.map

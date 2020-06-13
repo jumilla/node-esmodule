@@ -1,5 +1,5 @@
 
-import { SourceMapConsumer, SourceMapGenerator, RawSourceMap } from 'source-map'
+import { SourceMapConsumer, SourceMapGenerator, RawSourceMap, Mapping } from 'source-map'
 
 
 
@@ -67,16 +67,24 @@ export class SourceMap {
 		})
 
 		consumer.eachMapping(record => {
-			let { path, line } = this.getLocation(record.originalLine)
-			const column = record.originalColumn
+			if (record.source) {
+				let { path, line } = this.getLocation(record.originalLine)
+				const column = record.originalColumn
 
-			// console.log(record.originalLine, path, line, column)
+				// console.log(11, record.originalLine, path, line, column)
 
-			generator.addMapping({
-				generated: { line: record.generatedLine, column: record.generatedColumn },
-				original: { line: line, column: column },
-				source: path,
-			})
+				generator.addMapping({
+					generated: { line: record.generatedLine, column: record.generatedColumn },
+					original: { line: line, column: column },
+					source: path,
+					name: record.name,
+				})
+			}
+			else {
+				generator.addMapping({
+					generated: { line: record.generatedLine, column: record.generatedColumn },
+				} as Mapping)
+			}
 		})
 
 		return generator.toJSON()

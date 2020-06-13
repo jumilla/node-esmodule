@@ -1,8 +1,8 @@
 
-import meta from '../meta'
 import { Config, SourceMapKind } from '../config'
 import { Project } from '../project'
 import P from '../platform'
+import meta from '../meta'
 import log from 'npmlog'
 import type TS from 'typescript'
 
