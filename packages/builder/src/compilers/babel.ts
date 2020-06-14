@@ -7,38 +7,43 @@ import log from 'npmlog'
 import type BABEL from '@babel/core'
 
 
+const DEFAULT_BABEL_CONFIG = {
+	presets: [
+		[
+			'@babel/preset-env',
+			// { targets: { 'esmodules': true }, modules: false },
+			{ targets: { 'node': '14.0' }, modules: false },
+		],
+	],
+
+	plugins: [],
+}
+
+
 
 let babel: typeof BABEL
 
 
 
-async function build(project: Project) {
-	try {
-		if (!babel) {
+async function build(
+	project: Project,
+) {
+	if (!babel) {
+		try {
 			babel = await import('@babel/core')
 		}
+		catch (error) {
+			throw new Error('Need installing "@babel/core".')
+		}
 	}
-	catch (error) {
-		throw new Error('Need installing "@babel/core".')
-	}
-
-	const preset = await import('@babel/preset-env')
 
 	const sourcePath = project.modulePathWithoutExtension + '.js'
 
 	const sourceText = project.sourceMap.wholeContent()
 
-	const options = {
+	const options: BABEL.TransformOptions = {
 		/* default compilerOptions */
-		...{
-			presets: [
-				[
-					require('@babel/preset-env'),
-					// { targets: { 'node': '6.0' } },
-				],
-			],
-			plugins: [],
-		},
+		...DEFAULT_BABEL_CONFIG,
 
 		/* project compilerOptions */
 		...{
@@ -50,35 +55,49 @@ async function build(project: Project) {
 		...project.config.babel,
 	}
 
-	const result = babel.transformSync(sourceText, options)
-
-	if (!result) {
-		throw new Error('transform failed.')
+	for (const preset of options.presets!) {
+		if (Array.isArray(preset) && preset.length >= 2 && preset[1]) {
+			(preset[1] as { [name: string]: any }).modules = false
+		}
 	}
 
-	if (result.code) {
-		if (project.config.module.sourceMap == SourceMapKind.None) {
-			writeFile(project, '.mjs', result.code)
+	try {
+		const result = babel.transformSync(sourceText, options)
+
+		if (!result) {
+			throw new Error('transform failed.')
 		}
-		else {
-			const moduleMap = await project.sourceMap.originalSourceMap(result.map!)
 
-			moduleMap.file = P.extractFileTitlePath(project.modulePathWithoutExtension) + '.js'
-
-			switch (project.config.module.sourceMap) {
-				case SourceMapKind.File:
-					result.code += '\n' + project.sourceMap.createFileComment(moduleMap)
-					break
-				case SourceMapKind.Inline:
-					result.code += '\n' + project.sourceMap.createInlineComment(moduleMap)
-					break
+		if (result.code) {
+			if (project.config.module.sourceMap == SourceMapKind.None) {
+				writeFile(project, '.mjs', result.code)
 			}
+			else {
+				const moduleMap = await project.sourceMap.originalSourceMap(result.map!)
 
-			writeFile(project, '.mjs', result.code)
-			if (project.config.module.sourceMap == SourceMapKind.File) {
-				writeFile(project, '.mjs.map', JSON.stringify(moduleMap))
+				moduleMap.file = P.extractFileTitlePath(project.modulePathWithoutExtension) + '.js'
+
+				switch (project.config.module.sourceMap) {
+					case SourceMapKind.File:
+						result.code += '\n' + project.sourceMap.createFileComment(moduleMap)
+						break
+					case SourceMapKind.Inline:
+						result.code += '\n' + project.sourceMap.createInlineComment(moduleMap)
+						break
+				}
+
+				writeFile(project, '.mjs', result.code)
+				if (project.config.module.sourceMap == SourceMapKind.File) {
+					writeFile(project, '.mjs.map', JSON.stringify(moduleMap))
+				}
 			}
 		}
+	}
+	catch (error) {
+		console.log(345, error.toString())
+		// console.log(Object.keys(error.prototype))
+
+		console.log(error.loc, error.pos, error.code, error.message)
 	}
 
 	// console.log(result)
