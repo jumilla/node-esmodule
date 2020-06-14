@@ -1,6 +1,6 @@
 {
   "name": "esmodule-server",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "ECMAScript-Module (ES Module) web server.",
   "author": "Jumilla <fumio@jumilla.me>",
   "keywords": [
