@@ -1,10 +1,9 @@
 {
   "private": true,
   "name": "esmodule-example",
-  "version": "0.12.1",
-  "scripts": {
-  },
+  "version": "0.12.2",
+  "scripts": {},
   "devDependencies": {
-    "esmodule-builder": "^0.12.1"
+    "esmodule-builder": "^0.12.2"
   }
 }

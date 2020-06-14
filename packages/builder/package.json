@@ -1,9 +1,12 @@
 {
   "name": "esmodule-builder",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "ECMAScript-Module (ES Module) builder.",
   "keywords": [
-    "esmodules", "typescript", "babel", "flow"
+    "esmodules",
+    "typescript",
+    "babel",
+    "flow"
   ],
   "author": "Jumilla <fumio@jumilla.me>",
   "homepage": "https://github.com/spellu/esmodules#readme",
