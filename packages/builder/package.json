@@ -17,13 +17,6 @@
     "bin",
     "lib"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/spellu/esmodules.git"
-  },
-  "bugs": {
-    "url": "https://github.com/spellu/esmodules/issues"
-  },
   "dependencies": {
     "@types/glob": "^7.1.1",
     "@types/jest": "^25.2.3",
@@ -35,5 +28,9 @@
     "npmlog": "^4.1.2",
     "source-map": "^0.7.3",
     "tmp": "^0.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spellu/esmodules.git"
   }
 }

@@ -94,10 +94,12 @@ async function build(
 		}
 	}
 	catch (error) {
-		console.log(345, error.toString())
+		// console.log(345, error.toString())
 		// console.log(Object.keys(error.prototype))
 
-		console.log(error.loc, error.pos, error.code, error.message)
+		// console.log(error.loc, error.pos, error.code, error.message)
+
+		throw error
 	}
 
 	// console.log(result)
