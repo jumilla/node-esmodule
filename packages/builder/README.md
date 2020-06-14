@@ -8,4 +8,5 @@ ECMAScript Modules are implemented in Node.js (version 14 and above) or modern w
 This behavior concatenate multiple source files according to the setting file and output a single ES module file.
 You can use "TypeScript" and "Babel" as compilers.
 
-See [Documents](/documents/en.md/).
+- [English](/documents/en.md)
+- [日本語](/documents/ja.md)

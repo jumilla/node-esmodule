@@ -15,6 +15,6 @@ You can use "TypeScript" and "Babel" as compilers.
 
 ## Documents
 
-- [English](documents/en.md)
-- [日本語](documents/ja.md)
+- [English](/documents/en.md)
+- [日本語](/documents/ja.md)
 
