@@ -14,14 +14,6 @@
         },
         {
             "group": "build",
-            "label": "esmodule-example: ビルド",
-            "type": "npm",
-            "script": "build",
-            "path": "packages/example/",
-            "problemMatcher": []
-        },
-        {
-            "group": "build",
             "label": "esmodule-*: リリース: パッチ",
             "type": "shell",
             "command": "lerna publish patch -y",
@@ -33,17 +25,6 @@
             "type": "shell",
             "command": "lerna publish minor",
             "problemMatcher": []
-        },
-        {
-            "type": "npm",
-            "script": "build",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": [],
-            "label": "npm: build",
-            "detail": "yarn run tsc -p packages/builder/"
         }
     ]
 }
