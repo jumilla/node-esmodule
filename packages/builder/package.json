@@ -1,6 +1,6 @@
 {
   "name": "esmodule-builder",
-  "version": "0.12.4",
+  "version": "0.12.5",
   "description": "ECMAScript-Module (ES Module) builder.",
   "license": "Apache-2.0",
   "keywords": [
