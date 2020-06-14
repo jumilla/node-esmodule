@@ -8,7 +8,7 @@
         "sourceMap": "file"
     },
     "babel": {
-        "presets":[
+        "presets": [
             "@babel/preset-flow"
         ]
     }
