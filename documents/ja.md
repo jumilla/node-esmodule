@@ -78,14 +78,14 @@ yarn run esmc
 
 ### サンプル
 
-- [単一ソースファイル](/examples/11-typescript-1-file/)
-- [複数ソースファイル](/examples/12-typescript-n-files/)
+- [単一ソースファイル (/examples/11-typescript-1-file/)](/examples/11-typescript-1-file/)
+- [複数ソースファイル (/examples/12-typescript-n-files/)](/examples/12-typescript-n-files/)
 
 ### 既定のオプション指定
 
 `esmc`は次の設定を既定値として使用します。
 
-```json
+```json:esmconfig.json
 {
     "compilerOptions": {
         "target": "esnext",
@@ -106,7 +106,7 @@ yarn run esmc
 
 次の例は、TypeScriptのオプション`target`を指定し、モジュールファイルをES5形式で出力します。
 
-```json
+```json:esmconfig.json
 {
     "compiler": "typescript",
     "source": "...",
@@ -120,7 +120,11 @@ yarn run esmc
 }
 ```
 
-TypeScriptの設定ファイル`tsconfig.json`についての詳細は、[TypeScript公式ドキュメント](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html]を参照してください。
+TypeScriptの設定ファイル`tsconfig.json`についての詳細は、[TypeScript公式ドキュメント](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html)を参照してください。
+
+### デバッグ用の出力
+
+TODO:
 
 ## Babelでのコンパイル
 
@@ -131,7 +135,7 @@ TypeScriptの設定ファイル`tsconfig.json`についての詳細は、[TypeSc
 
 ### 既定のオプション指定
 
-```json
+```json:tsconfig.json
 {
     "compilerOptions": {
         "target": "esnext",
@@ -152,7 +156,7 @@ TypeScriptの設定ファイル`tsconfig.json`についての詳細は、[TypeSc
 
 次の例は、Babelのオプション`target`を指定し、モジュールファイルをChrome 40以上・iOS 10以上で動作する形式（ES5）で出力します。
 
-```json
+```json:esmconfig.json
 {
     "compiler": "babel",
     "source": "...",
@@ -174,7 +178,7 @@ TypeScriptの設定ファイル`tsconfig.json`についての詳細は、[TypeSc
 
 Babelのプリセット`@babel/preset-flow`を使います。
 
-```json
+```json:esmconfig.json
 {
     "compiler": "babel",
     "source": "...",
