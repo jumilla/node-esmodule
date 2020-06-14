@@ -2,6 +2,9 @@
   "name": "esmodule-builder",
   "version": "0.12.1",
   "description": "ECMAScript-Module (ES Module) builder.",
+  "keywords": [
+    "esmodules", "typescript", "babel", "flow"
+  ],
   "author": "Jumilla <fumio@jumilla.me>",
   "homepage": "https://github.com/spellu/esmodules#readme",
   "license": "Apache-2.0",

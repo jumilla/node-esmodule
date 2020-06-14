@@ -4,8 +4,7 @@
     "workspaces": [
         "packages/*",
         "fixtures/*",
-        "tests/*",
-        "examples/*"
+        "tests/*"
     ],
     "devDependencies": {
         "jest": "^26.0",

@@ -76,7 +76,14 @@ yarn run esmc
 
 設定ファイルの`"compiler"`に`"typescript"`を指定します。
 
+### サンプル
+
+- [単一ソースファイル](/examples/11-typescript-1-file/)
+- [複数ソースファイル](/examples/12-typescript-n-files/)
+
 ### 既定のオプション指定
+
+`esmc`は次の設定を既定値として使用します。
 
 ```json
 {

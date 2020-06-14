@@ -2,36 +2,9 @@
   "private": true,
   "name": "esmodule-example",
   "version": "0.12.1",
-  "description": "ES Modules example",
-  "author": "Fumio Furukawa <fumio@jumilla.me>",
-  "homepage": "https://github.com/spellu/esmodules#readme",
-  "license": "Apache-2.0",
-  "main": "lib/example-1.mjs",
-  "types": "lib/example-1.d.ts",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/spellu/esmodules.git"
-  },
   "scripts": {
-    "build": "yarn run esmc src/1",
-    "test": "echo \"Error: run tests from root\" && exit 1"
-  },
-  "bugs": {
-    "url": "https://github.com/spellu/esmodules/issues"
   },
   "devDependencies": {
     "esmodule-builder": "^0.12.1"
-  },
-  "dependencies": {
-    "@syntaxtree/html": "^0.1.1",
-    "esmodule-server": "^0.12.0"
-  },
-  "gitHead": "2fc52a1da0116d4479444579676d5a79f185403c"
+  }
 }

@@ -7,6 +7,9 @@ const program = {}
 if (process.argv.length >= 3) {
     program.directoryPath = process.argv[2]
 }
+else {
+    program.directoryPath = '.'
+}
 
 esmc.launch(program).catch(error => {
     // console.error(error)
