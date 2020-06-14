@@ -8,6 +8,7 @@
         "examples/*"
     ],
     "devDependencies": {
+        "jest": "^26.0",
         "lerna": "^3.22",
         "typescript": "^3.9"
     },

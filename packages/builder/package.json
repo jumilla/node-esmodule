@@ -9,10 +9,6 @@
     "esmc": "bin/esmc.js"
   },
   "main": "lib/cli.js",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
   "files": [
     "bin",
     "lib"
@@ -26,8 +22,11 @@
     "glob": "^7.1.6",
     "json5": "^2.1.3",
     "npmlog": "^4.1.2",
-    "source-map": "^0.7.3",
-    "tmp": "^0.2.1"
+    "source-map": "^0.7.3"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.1.8",
+    "typescript": "^3.9.5"
   },
   "repository": {
     "type": "git",

@@ -2,26 +2,27 @@
 const esmc = require('esmodule-builder')
 const fs = require('fs')
 const fspath = require('path')
-// const tmp = require('tmp')
 
 
 
 describe('Typescript', () => {
-    // test('1-1', testFixture('1-1'))
-    // test('1-2', testFixture('1-2'))
-    // test('1-3', testFixture('1-3'))
-    // test('1-4', testFixture('1-4'))
-    // test('2-1', testFixture('2-1'))
-    // test('2-2', testFixture('2-2'))
-    // test('2-3', testFixture('2-3'))
+    test('1-1', testFixture('1-1'))
+    test('1-2', testFixture('1-2'))
+    test('1-3', testFixture('1-3'))
+    test('1-4', testFixture('1-4'))
+    test('2-1', testFixture('2-1'))
+    test('2-2', testFixture('2-2'))
+    test('2-3', testFixture('2-3'))
 })
 
 describe('Babel', () => {
-    // test('9-1:sourceMap=none', testFixture('9-1'))
-    // test('9-2:sourceMap=file', testFixture('9-2'))
-    // test('9-3:sourceMap=inline', testFixture('9-3'))
+    test('9-1:sourceMap=none', testFixture('9-1'))
+    test('9-2:sourceMap=file', testFixture('9-2'))
+    test('9-3:sourceMap=inline', testFixture('9-3'))
     // test('9-4', testFixture('9-4'))
+})
 
+describe('Babel/flow', () => {
     test('flow', testFixture('flow'))
 })
 
@@ -31,12 +32,16 @@ function testFixture(id) {
     }
 
     return done => {
-        // const tempDirPath = tmp.dirSync().name
         const tempDirPath = '__TEST__'
 
         copyDir(path('in'), tempDirPath)
 
-        esmc.launch({directoryPath: tempDirPath}).then(()=> {
+        const options = {
+            directoryPath: tempDirPath,
+            logLevel: 'silent',
+        }
+
+        esmc.launch(options).then(()=> {
             const outDirPath = path('out')
             for (const path of readdir(outDirPath)) {
                 const f1 = fs.readFileSync(fspath.join(tempDirPath, path), 'utf8')
