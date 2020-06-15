@@ -36,7 +36,7 @@ type TranspileResult = Output & TS.EmitResult
 
 async function build(
 	project: Project,
-) {
+): Promise<void> {
 	if (!ts) {
 		try {
 			ts = await import('typescript')

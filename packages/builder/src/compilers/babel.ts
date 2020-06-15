@@ -11,8 +11,7 @@ const DEFAULT_BABEL_CONFIG = {
 	presets: [
 		[
 			'@babel/preset-env',
-			// { targets: { 'esmodules': true }, modules: false },
-			{ targets: { 'node': '14.0' }, modules: false },
+			{ targets: { 'node': 'current' }, modules: false },
 		],
 	],
 
@@ -27,7 +26,7 @@ let babel: typeof BABEL
 
 async function build(
 	project: Project,
-) {
+): Promise<void> {
 	if (!babel) {
 		try {
 			babel = await import('@babel/core')
@@ -55,10 +54,48 @@ async function build(
 		...project.config.babel,
 	}
 
-	for (const preset of options.presets!) {
-		if (Array.isArray(preset) && preset.length >= 2 && preset[1]) {
-			(preset[1] as { [name: string]: any }).modules = false
+	options.presets = (options.presets || []).map(preset => {
+		const envOptions = { modules: false }
+
+		if (typeof preset == 'string') {
+			preset = normalizePresetName(preset)
+
+			if (testNameIsPresetEnv(preset)) {
+				return ['@babel/preset-env', envOptions]
+			}
 		}
+		else if (Array.isArray(preset) && preset.length >= 1) {
+			preset[0] = normalizePresetName(preset[0])
+
+			if (testNameIsPresetEnv(preset[0])) {
+				return ['@babel/preset-env', { ...preset[1] ?? {}, ...envOptions }]
+			}
+		}
+
+		return preset
+
+		function normalizePresetName(name: any): any {
+			if (typeof name == 'string') {
+				if (name.match(/^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$/)) name = '@babel/preset-' + name
+			}
+			return name
+		}
+
+		function testNameIsPresetEnv(name: any): boolean {
+			if (name === '@babel/preset-env') return true
+			return false
+		}
+	})
+
+	if (project.config.debug.outputSource) {
+		P.writeFile(
+			P.joinPath(project.baseDirectoryPath, project.config.debug.outputSource, 'module.js'),
+			sourceText,
+		)
+		P.writeFile(
+			P.joinPath(project.baseDirectoryPath, project.config.debug.outputSource, 'babel.config.json'),
+			JSON.stringify(options, null, '\t')
+		)
 	}
 
 	try {
@@ -94,27 +131,73 @@ async function build(
 		}
 	}
 	catch (error) {
-		// console.log(345, error.toString())
-		// console.log(Object.keys(error.prototype))
-
-		// console.log(error.loc, error.pos, error.code, error.message)
+		displayError(project, error)
 
 		throw error
 	}
-
-	// console.log(result)
 }
 
 function writeFile(
 	project: Project,
 	extension: string,
 	text: string,
-) {
+): void {
 	const path = P.resolvePath(project.modulePathWithoutExtension + extension)
 
 	P.writeFile(path, text)
 
 	log.info(meta.program, `'${path}' generated.`)
+}
+
+function displayError(
+	project: Project,
+	error: any,
+): void {
+	// console.log(error.loc, error.pos, error.code, error.message)
+
+	switch (error.code) {
+		case 'BABEL_PARSE_ERROR':
+			const d = parseBabelParseError(error)
+
+			const { path, line } = project.sourceMap.getLocation(d.line)
+
+			const location = `${path} (${line},${d.column + 1})`
+			log.error(meta.program, `${location}: ${d.message}`)
+
+			if (d.additionalMessage) {
+				log.error(meta.program, d.additionalMessage)
+			}
+			break
+
+		default:
+			log.error(meta.program, error.message)
+	}
+}
+
+interface Diagnostic {
+	source: string
+	line: number
+	column: number
+	message: string
+	additionalMessage: string
+}
+
+function parseBabelParseError(
+	error: any,
+): Diagnostic {
+	const result = error.message.match(/^(.*?):(.+)\(\d+:\d+\):?\n(.*)$/sm);
+
+	// if (!result) {
+	//     console.log(error.message)
+	// }
+
+	return {
+		source: result ? result[1] : '',
+		line: error.loc.line,
+		column: error.loc.column,
+		message: result ? result[2].trim() : error.message,
+		additionalMessage: result ? result[3] : '',
+	}
 }
 
 

@@ -7,7 +7,7 @@
     },
     "module": {
         "directory": "modules",
-        "name": "/example-12",
+        "name": "example-12",
         "sourceMap": "file"
     }
 }

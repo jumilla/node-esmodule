@@ -1,0 +1,18 @@
+{
+    "compiler": "babel",
+    "source": {
+        "directory": "sources",
+        "entry": "00-module.js",
+        "include": "**/*.js"
+    },
+    "module": {
+        "directory": "modules",
+        "name": "example-31",
+        "sourceMap": "file"
+    },
+    "babel": {
+        "presets": [
+            "@babel/preset-flow"
+        ]
+    }
+}
