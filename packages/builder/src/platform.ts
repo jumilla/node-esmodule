@@ -9,6 +9,7 @@ export default {
 	resolvePath,
 	relativePath,
 	normalizePath,
+	testDirectoryExists,
 	testFileExists,
 	readFile,
 	writeFile,
@@ -51,6 +52,18 @@ function normalizePath(
 	path: string,
 ): string {
 	return fspath.normalize(path)
+}
+
+function testDirectoryExists(
+	path: string,
+): boolean {
+	try {
+		const stat = fs.statSync(path)
+		return stat.isDirectory()
+	}
+	catch {
+		return false
+	}
 }
 
 function testFileExists(

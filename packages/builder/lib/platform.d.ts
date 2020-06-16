@@ -5,6 +5,7 @@ declare const _default: {
     resolvePath: typeof resolvePath;
     relativePath: typeof relativePath;
     normalizePath: typeof normalizePath;
+    testDirectoryExists: typeof testDirectoryExists;
     testFileExists: typeof testFileExists;
     readFile: typeof readFile;
     writeFile: typeof writeFile;
@@ -17,6 +18,7 @@ declare function joinPath(...paths: string[]): string;
 declare function resolvePath(...paths: string[]): string;
 declare function relativePath(baseDirectoryPath: string, path: string): string;
 declare function normalizePath(path: string): string;
+declare function testDirectoryExists(path: string): boolean;
 declare function testFileExists(path: string): boolean;
 declare function readFile(path: string): string;
 declare function writeFile(path: string, content: string): void;

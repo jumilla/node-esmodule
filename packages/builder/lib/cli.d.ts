@@ -1,6 +1,7 @@
 declare type Program = {
-    directoryPath: string;
+    configFilePath: string;
     logLevel?: string;
 };
-export declare function launch(program: Program): Promise<void>;
+export declare function processCommandLine(args: string[]): Program;
+export declare function run(program: Program): Promise<void>;
 export {};

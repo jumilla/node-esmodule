@@ -15,5 +15,5 @@ export declare type Project = {
     modulePathWithoutExtension: string;
     sourceMap: SourceMap;
 };
-declare function load(configFilePath: string, baseDirectoryPath?: string): Project;
-declare function build(project: Project): Promise<void>;
+export declare function load(configFilePath: string, baseDirectoryPath?: string): Project;
+export declare function build(project: Project): Promise<void>;

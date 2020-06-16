@@ -5,6 +5,7 @@ import SourceMap from './sourcemap'
 import P from './platform'
 import tsc from './compilers/tsc'
 import babel from './compilers/babel'
+import chalk from 'chalk'
 import log from 'npmlog'
 import glob from 'glob'
 
@@ -24,7 +25,7 @@ export type Project = {
 	sourceMap: SourceMap
 }
 
-function load(
+export function load(
 	configFilePath: string,
 	baseDirectoryPath: string = P.extractDirectoryPath(configFilePath),
 ): Project {
@@ -33,6 +34,11 @@ function load(
 	const config = parseConfig(text)
 
 	const entryPath = P.resolvePath(baseDirectoryPath, config.source.directory, config.source.entry)
+
+	if (!P.testFileExists(entryPath)) {
+		log.error(meta.program, chalk.red('Source file not found:'), chalk.white.bgRed(entryPath))
+		throw new Error()
+	}
 
 	const codePaths = expandFilePatterns(baseDirectoryPath, config)
 
@@ -148,7 +154,7 @@ function readFile(
 		.split(/\r\n|\n/)
 }
 
-async function build(
+export async function build(
 	project: Project,
 ) {
 	switch (project.config.compiler) {

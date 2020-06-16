@@ -2,17 +2,17 @@
 
 const esmc = require('../lib/cli.js')
 
-const program = {}
 
-if (process.argv.length >= 3) {
-    program.directoryPath = process.argv[2]
-}
-else {
-    program.directoryPath = '.'
-}
 
-esmc.launch(program).catch(error => {
-    // console.error(error)
+try {
+    esmc
+        .run(esmc.processCommandLine(process.argv))
+        .catch(error => {
+            // console.error(error)
+            process.exit(1)
+        })
+}
+catch (error) {
+    console.error(error)
     process.exit(1)
-})
-
+}

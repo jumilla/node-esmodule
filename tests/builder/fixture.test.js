@@ -41,7 +41,7 @@ function testFixture(id) {
             logLevel: 'silent',
         }
 
-        esmc.launch(options).then(()=> {
+        esmc.run(options).then(() => {
             const outDirPath = path('out')
             for (const path of readdir(outDirPath)) {
                 const f1 = fs.readFileSync(fspath.join(tempDirPath, path), 'utf8')
@@ -51,34 +51,34 @@ function testFixture(id) {
 
             done()
         })
-        .catch(error => {
-            done(error)
-        })
-        .finally(() => {
-            fs.rmdirSync(tempDirPath, {recursive: true})
-        })
+            .catch(error => {
+                done(error)
+            })
+            .finally(() => {
+                fs.rmdirSync(tempDirPath, { recursive: true })
+            })
     }
 }
 
 function copyDir(src, dest) {
-    if (!fs.existsSync(dest)){
+    if (!fs.existsSync(dest)) {
         fs.mkdirSync(dest)
     }
     const files = fs.readdirSync(src)
 
-    for(const file of files) {
-		const current = fs.lstatSync(fspath.join(src, file))
-		if (current.isDirectory()) {
-			copyDir(fspath.join(src, file), fspath.join(dest, file))
+    for (const file of files) {
+        const current = fs.lstatSync(fspath.join(src, file))
+        if (current.isDirectory()) {
+            copyDir(fspath.join(src, file), fspath.join(dest, file))
         }
         else if (current.isSymbolicLink()) {
-			const symlink = fs.readlinkSync(fspath.join(src, file))
-			fs.symlinkSync(symlink, fspath.join(dest, file))
+            const symlink = fs.readlinkSync(fspath.join(src, file))
+            fs.symlinkSync(symlink, fspath.join(dest, file))
         }
         else {
-			copy(fspath.join(src, file), fspath.join(dest, file))
-		}
-	}
+            copy(fspath.join(src, file), fspath.join(dest, file))
+        }
+    }
 
     function copy(src, dest) {
         fs.writeFileSync(dest, fs.readFileSync(src))
@@ -90,10 +90,10 @@ function readdir(dir, sub = '.') {
     for (const name of fs.readdirSync(fspath.join(dir, sub))) {
         const path = fspath.join(sub, name)
         const stat = fs.statSync(fspath.join(dir, path))
-        if (stat && stat.isDirectory()) { 
+        if (stat && stat.isDirectory()) {
             results = results.concat(readdir(dir, fspath.join(sub, name)))
         }
-        else { 
+        else {
             results.push(path)
         }
     }

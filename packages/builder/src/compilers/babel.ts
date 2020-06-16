@@ -153,8 +153,6 @@ function displayError(
 	project: Project,
 	error: any,
 ): void {
-	// console.log(error.loc, error.pos, error.code, error.message)
-
 	switch (error.code) {
 		case 'BABEL_PARSE_ERROR':
 			const d = parseBabelParseError(error)
@@ -162,15 +160,15 @@ function displayError(
 			const { path, line } = project.sourceMap.getLocation(d.line)
 
 			const location = `${path} (${line},${d.column + 1})`
-			log.error(meta.program, `${location}: ${d.message}`)
+			log.error('babel', `${location}: ${d.message}`)
 
 			if (d.additionalMessage) {
-				log.error(meta.program, d.additionalMessage)
+				log.notice('babel', d.additionalMessage)
 			}
 			break
 
 		default:
-			log.error(meta.program, error.message)
+			log.error('babel', error.message)
 	}
 }
 
@@ -185,11 +183,9 @@ interface Diagnostic {
 function parseBabelParseError(
 	error: any,
 ): Diagnostic {
-	const result = error.message.match(/^(.*?):(.+)\(\d+:\d+\):?\n(.*)$/sm);
+	// console.log(error.loc, error.pos, error.code, error.message)
 
-	// if (!result) {
-	//     console.log(error.message)
-	// }
+	const result = error.message.match(/^(.*?):(.+)\(\d+:\d+\):?\n(.*)$/sm);
 
 	return {
 		source: result ? result[1] : '',
