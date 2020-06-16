@@ -1,7 +1,8 @@
 {
   "private": true,
-  "name": "esmodule-example-1-2",
-  "version": "0.12.2",
+  "engines": {
+    "node": ">=14"
+  },
   "devDependencies": {
     "esmodule-builder": "^0.12.2",
     "typescript": "^3.9"
