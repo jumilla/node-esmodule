@@ -15,5 +15,14 @@ You can use "TypeScript" and "Babel" as compilers.
 
 ## Examples
 
-- [11-typescript-1-file](examples/11-typescript-1-file)
-- [12-typescript-n-files](examples/12-typescript-n-files)
+- [11-typescript-1-file](/examples/11-typescript-1-file)
+- [12-typescript-n-files](/examples/12-typescript-n-files)
+- [13-babel](/examples/13-babel)
+- [13-flow](/examples/13-flow)
+
+## Practicals
+
+### Typescript
+
+- [calc](/examples/21-typescript-practical-calc)
+- [cli](/examples/22-typescript-practical-node-program)
